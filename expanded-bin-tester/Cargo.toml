@@ -1,0 +1,7 @@
+[package]
+name = "expanded-bin-tester"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+derive_builder = "0.20.2"

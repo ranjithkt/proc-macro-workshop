@@ -5,6 +5,7 @@ edition = "2021"
 publish = false
 
 [workspace]
+members = ["expanded-bin-tester"]
 
 [[bin]]
 name = "workshop"
@@ -16,3 +17,4 @@ derive_builder = { path = "builder" }
 derive_debug = { path = "debug" }
 seq = { path = "seq" }
 sorted = { path = "sorted" }
+expanded-bin-tester = {path = "expanded-bin-tester"}
