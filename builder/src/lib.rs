@@ -1,7 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Ident};
-use syn::__private::Span;
 
 // Before moving on, have the macro also generate:
 //
@@ -48,8 +47,8 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         pub struct #bident {
             executable: Option<String>,
-            args: Option<alloc::vec::Vec<String>>,
-            env: Option<alloc::vec::Vec<String>>,
+            args: Option<std::vec::Vec<String>>,
+            env: Option<std::vec::Vec<String>>,
             current_dir: Option<String>,
         }
         impl #bident {
@@ -69,7 +68,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 self.current_dir = Some(current_dir);
                 self
             }
-            pub fn build(&mut self) -> Result<Command, alloc::boxed::Box<dyn std::error::Error>> {
+            pub fn build(&mut self) -> Result<Command, std::boxed::Box<dyn std::error::Error>> {
                 core::result::Result::Ok(#name {
                     executable: self.executable.take().ok_or("executable not set")?,
                     args: self.args.take().ok_or("args not set")?,
