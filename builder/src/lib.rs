@@ -155,11 +155,11 @@ pub fn derive(input: TokenStream) -> TokenStream {
         let field_name = field.ident.clone();
         if is_ty_option(&field.ty) {
             quote! {
-                #field_name: self.#field_name.clone()?
+                #field_name: self.#field_name.clone()
             }
         } else {
             quote! {
-                #field_name: self.#field_name.clone().ok_or(concat!(#field_name, " is not set"))?
+                #field_name: self.#field_name.clone().ok_or(concat!(stringify!(#field_name), " is not set"))?
             }
         }
     });
