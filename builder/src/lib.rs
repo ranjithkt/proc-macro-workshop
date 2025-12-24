@@ -68,43 +68,46 @@ pub fn derive(input: TokenStream) -> TokenStream {
         }
     });
 
+    let functions = fields.iter().map(|field| {
+        let field_name = field.ident.clone();
+        quote! {
+           pub fn #field_name(&mut self, #field) -> &mut Self {
+               self.#field_name = Some(#field_name);
+               self
+           }
+       }
+    });
+
+    let build_function = fields.iter().map(|field| {
+        let field_name = field.ident.clone();
+        quote! {
+           #field_name: self.#field_name.take().unwrap_or_default()
+       }
+    });
+
+    let init_fields = fields.iter().map(|field| {
+        let field_name = field.ident.clone();
+        quote! {
+           #field_name: None
+       }
+    });
+
     let expanded = quote! {
         pub struct #bident {
             #(#optionized,)*
         }
         impl #bident {
-            pub fn executable(&mut self, executable: String) -> &mut Self {
-                self.executable = Some(executable);
-                self
-            }
-            pub fn args(&mut self, args: Vec<String>) -> &mut Self {
-                self.args = Some(args);
-                self
-            }
-            pub fn env(&mut self, env: Vec<String>) -> &mut Self {
-                self.env = Some(env);
-                self
-            }
-            pub fn current_dir(&mut self, current_dir: String) -> &mut Self {
-                self.current_dir = Some(current_dir.into());
-                self
-            }
+            #(#functions)*
             pub fn build(&mut self) -> Result<Command, std::boxed::Box<dyn std::error::Error>> {
                 core::result::Result::Ok(#name {
-                    executable: self.executable.take().ok_or("executable not set")?,
-                    args: self.args.take().ok_or("args not set")?,
-                    env: self.env.take().ok_or("env not set")?,
-                    current_dir: self.current_dir.take().unwrap_or_default(),
+                    #(#build_function, )*
                 })
             }
         }
         impl #name {
             pub fn builder() -> #bident {
                 #bident {
-                    executable: None,
-                    args: None,
-                    env: None,
-                    current_dir: None,
+                    #(#init_fields,)*
                 }
             }
         }
