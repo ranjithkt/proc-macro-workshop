@@ -1,10 +1,7 @@
 use proc_macro::TokenStream;
 use quote::__private::ext::RepToTokensExt;
 use quote::quote;
-use syn::{
-    parse_macro_input, parse_quote, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed,
-    GenericArgument, Ident, Path, PathArguments, PathSegment, Type, TypePath, Visibility,
-};
+use syn::{parse, parse_macro_input, parse_quote, Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, GenericArgument, Ident, Meta, MetaList, Path, PathArguments, PathSegment, Type, TypePath, Visibility};
 
 #[proc_macro_derive(Builder, attributes(builder))]
 pub fn derive(input: TokenStream) -> TokenStream {
@@ -24,7 +21,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
         unimplemented!()
     };
 
-    fn get_option_generic_type(ty: &Type) -> Option<&Type> {
+    fn get_option_generic_inner_type(ty: &Type) -> Option<&Type> {
         if let Type::Path(TypePath {
             path: Path { segments, .. },
             ..
@@ -44,10 +41,44 @@ pub fn derive(input: TokenStream) -> TokenStream {
         None
     }
 
+    fn get_option_generic_vec_type(field: &Field) -> Option<&Type> {
+        let s = field.attrs.iter().filter_map(|attr| {
+            if let Meta::List(MetaList { path, tokens, .. }, .. ) = &attr.meta {
+                if let Some(PathSegment {ident, ..}) = path.segments.first() {
+                    if ident == "builder" {
+                        while let Some(token) = tokens.next() {
+                            eprintln!("{:#?}", token);
+                        }
+                        return Some((path, tokens));
+                    }
+                }
+            }
+            None
+        });
+
+        if let Type::Path(TypePath {
+                              path: Path { segments, .. },
+                              ..
+                          }) = &field.ty
+        {
+            if let Some(last_ident) = segments.iter().last() {
+                if last_ident.ident == "Vec" {
+                    if let PathArguments::AngleBracketed(ref arg) = last_ident.arguments {
+                        if let Some(GenericArgument::Type(s)) = arg.args.first() {
+                            return Some(s);
+                        }
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
     let optionized = fields.iter().map(|field| {
         let ty = field.ty.clone();
 
-        let optional_ty = if get_option_generic_type(&ty).is_some() {
+        let optional_ty = if get_option_generic_inner_type(&ty).is_some() {
             parse_quote! {
                 #ty
             }
@@ -70,7 +101,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let functions = fields.iter().map(|field| {
         let field_name = &field.ident;
         let field_type = &field.ty;
-        if let Some(inner_type) = get_option_generic_type(field_type) {
+        if let Some(inner_type) = get_option_generic_inner_type(field_type) {
             quote! {
                     pub fn #field_name(&mut self, #field_name: #inner_type) -> &mut Self {
                         self.#field_name = Some(#field_name);
@@ -89,7 +120,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
     let build_function = fields.iter().map(|field| {
         let field_name = field.ident.clone();
-        if get_option_generic_type(&field.ty).is_some() {
+        if get_option_generic_inner_type(&field.ty).is_some() {
             quote! {
                 #field_name: self.#field_name.clone()
             }
