@@ -1,0 +1,53 @@
+# proc-macro-workshop Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-12-25
+
+## Active Technologies
+
+- Rust stable (edition 2021) (001-proc-macro-implementations)
+
+## Project Structure
+
+```text
+src/
+tests/
+```
+
+## Commands
+
+cargo test [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLOGIES] cargo clippy
+
+## Code Style
+
+Rust stable (edition 2021): Follow standard conventions
+
+## Recent Changes
+
+- 001-proc-macro-implementations: Added Rust stable (edition 2021)
+
+<!-- MANUAL ADDITIONS START -->
+
+## Rust Edition vs Version (Important Distinction)
+
+| Term | What it means | Current value |
+|------|--------------|---------------|
+| **Rust Version** (compiler) | The rustc version (1.83, 1.84, etc.) | Always use **latest stable** |
+| **Rust Edition** | Language dialect set in Cargo.toml | **2021** (current mainstream) |
+
+### Why Edition 2021 (not 2024)?
+
+- **Existing project uses it** — All Cargo.toml files specify `edition = "2021"`
+- **Ecosystem stability** — Edition 2024 (released Nov 2024) may have compatibility gaps
+- **syn 2.x compatibility** — syn 2.x works perfectly with edition 2021
+- **No 2024 features needed** — proc-macro development doesn't require 2024's new features
+
+### Edition 2024 Changes (not needed here)
+
+- `gen` keyword reservation
+- RPIT lifetime capture changes
+- `unsafe_op_in_unsafe_fn` becomes deny-by-default
+- Prelude changes
+
+**Note**: "Rust stable (edition 2021)" means latest stable compiler + edition 2021 language features.
+
+<!-- MANUAL ADDITIONS END -->
