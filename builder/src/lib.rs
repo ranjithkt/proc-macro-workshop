@@ -1,5 +1,7 @@
 use darling::{ast::Data, FromDeriveInput, FromField};
+use heck::ToUpperCamelCase;
 use proc_macro::TokenStream;
+use proc_macro_error2::proc_macro_error;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, GenericArgument, Ident, PathArguments, Type};
 
@@ -22,6 +24,7 @@ struct BuilderInput {
 }
 
 #[proc_macro_derive(Builder, attributes(builder))]
+#[proc_macro_error]
 pub fn derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -33,7 +36,11 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
 fn derive_builder_impl(input: BuilderInput) -> proc_macro2::TokenStream {
     let name = &input.ident;
-    let builder_name = Ident::new(&format!("{}Builder", name), name.span());
+    // Use heck for consistent PascalCase naming even if input has unusual casing
+    let builder_name = Ident::new(
+        &format!("{}Builder", name.to_string().to_upper_camel_case()),
+        name.span(),
+    );
 
     let fields = input
         .data

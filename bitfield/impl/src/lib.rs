@@ -1,4 +1,6 @@
+use heck::ToSnakeCase;
 use proc_macro::TokenStream;
+use proc_macro_error2::{abort, proc_macro_error};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
     parse_macro_input, parse_quote, Data, DeriveInput, Error, Fields, Ident, ItemStruct, Lit, Meta,
@@ -6,13 +8,14 @@ use syn::{
 };
 
 #[proc_macro_attribute]
+#[proc_macro_error]
 pub fn bitfield(args: TokenStream, input: TokenStream) -> TokenStream {
     let _ = args;
     let item = parse_macro_input!(input as ItemStruct);
 
     match bitfield_impl(item) {
         Ok(tokens) => tokens.into(),
-        Err(e) => e.to_compile_error().into(),
+        Err(e) => abort!(e.span(), "{}", e),
     }
 }
 
@@ -66,8 +69,10 @@ fn bitfield_impl(item: ItemStruct) -> Result<proc_macro2::TokenStream> {
     let mut bit_offset_parts: Vec<proc_macro2::TokenStream> = Vec::new();
 
     for (idx, (field_name, field_ty, bits_attr)) in field_infos.iter().enumerate() {
-        let getter_name = format_ident!("get_{}", field_name);
-        let setter_name = format_ident!("set_{}", field_name);
+        // Use heck for consistent snake_case naming even if field has unusual casing
+        let field_str = field_name.to_string().to_snake_case();
+        let getter_name = format_ident!("get_{}", field_str);
+        let setter_name = format_ident!("set_{}", field_str);
 
         // Calculate bit offset for this field
         let current_offset = if bit_offset_parts.is_empty() {
@@ -182,12 +187,13 @@ fn get_bits_attribute(attrs: &[syn::Attribute]) -> Result<Option<(usize, proc_ma
 }
 
 #[proc_macro_derive(BitfieldSpecifier)]
+#[proc_macro_error]
 pub fn derive_bitfield_specifier(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
     match derive_specifier_impl(input) {
         Ok(tokens) => tokens.into(),
-        Err(e) => e.to_compile_error().into(),
+        Err(e) => abort!(e.span(), "{}", e),
     }
 }
 

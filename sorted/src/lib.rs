@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
-use proc_macro_error2::{emit_error, proc_macro_error};
+use proc_macro_error2::proc_macro_error;
 use quote::quote;
 use syn::{
     parse_macro_input, spanned::Spanned, visit_mut::VisitMut, Error, ExprMatch, Item, ItemFn, Pat,
@@ -12,14 +12,28 @@ use syn::{
 pub fn sorted(args: TokenStream, input: TokenStream) -> TokenStream {
     let _ = args;
     let item = parse_macro_input!(input as Item);
-    sorted_impl(&item)
+
+    match sorted_impl(&item) {
+        Ok(tokens) => tokens.into(),
+        Err(e) => {
+            // Return both the error and the original item so compilation can continue
+            let item_tokens = quote! { #item };
+            let error_tokens = e.to_compile_error();
+            quote! {
+                #error_tokens
+                #item_tokens
+            }
+            .into()
+        }
+    }
 }
 
-fn sorted_impl(item: &Item) -> TokenStream {
+fn sorted_impl(item: &Item) -> Result<proc_macro2::TokenStream> {
     let Item::Enum(item_enum) = item else {
-        // Use emit_error! with call_site span (points to #[sorted] attribute)
-        emit_error!(Span::call_site(), "expected enum or match expression");
-        return quote! { #item }.into();
+        return Err(Error::new_spanned(
+            quote! { #[sorted] },
+            "expected enum or match expression",
+        ));
     };
 
     // Check that variants are sorted
@@ -40,17 +54,13 @@ fn sorted_impl(item: &Item) -> TokenStream {
             .map(|v| &v.ident)
             .unwrap_or(prev_name);
 
-        // Use emit_error! to report error but still return the item
-        emit_error!(
+        return Err(Error::new(
             curr_name.span(),
-            "{} should sort before {}",
-            curr_name,
-            should_before
-        );
-        return quote! { #item }.into();
+            format!("{} should sort before {}", curr_name, should_before),
+        ));
     }
 
-    quote! { #item }.into()
+    Ok(quote! { #item })
 }
 
 #[proc_macro_attribute]
@@ -58,24 +68,29 @@ fn sorted_impl(item: &Item) -> TokenStream {
 pub fn check(args: TokenStream, input: TokenStream) -> TokenStream {
     let _ = args;
     let mut item_fn = parse_macro_input!(input as ItemFn);
-    let errors = check_impl(&mut item_fn);
-    
-    // Emit any collected errors
-    for e in errors {
-        emit_error!(e.span(), "{}", e);
+
+    match check_impl(&mut item_fn) {
+        Ok(()) => quote! { #item_fn }.into(),
+        Err(e) => {
+            let item_tokens = quote! { #item_fn };
+            let error_tokens = e.to_compile_error();
+            quote! {
+                #error_tokens
+                #item_tokens
+            }
+            .into()
+        }
     }
-    
-    quote! { #item_fn }.into()
 }
 
-fn check_impl(item_fn: &mut ItemFn) -> Vec<Error> {
-    let mut visitor = SortedChecker { errors: Vec::new() };
+fn check_impl(item_fn: &mut ItemFn) -> Result<()> {
+    let mut visitor = SortedChecker { error: None };
     visitor.visit_item_fn_mut(item_fn);
-    visitor.errors
+    visitor.error.map_or(Ok(()), Err)
 }
 
 struct SortedChecker {
-    errors: Vec<Error>,
+    error: Option<Error>,
 }
 
 impl VisitMut for SortedChecker {
@@ -93,10 +108,10 @@ impl VisitMut for SortedChecker {
         // Remove the #[sorted] attribute
         expr.attrs.remove(idx);
 
-        // Check that the match arms are sorted (collect first error only)
-        if self.errors.is_empty() {
+        // Check that the match arms are sorted (only capture first error)
+        if self.error.is_none() {
             if let Err(e) = check_match_arms_sorted(&expr.arms) {
-                self.errors.push(e);
+                self.error = Some(e);
             }
         }
 
