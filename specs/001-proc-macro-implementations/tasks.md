@@ -277,6 +277,69 @@ For each test file (e.g., `01-parse.rs`):
 
 ---
 
+---
+
+## Phase 9: Code Quality Refactoring (Constitution Compliance)
+
+**Purpose**: Refactor implementations to properly use darling and proc-macro-error2 as mandated by the constitution
+
+**⚠️ CRITICAL**: All 46 tests MUST continue to pass after each refactoring task
+
+### Phase 9.1: Builder Macro Refactoring
+
+- [ ] T077 [US1] Add `heck = "0.5"` dependency to `builder/Cargo.toml`
+- [ ] T078 [US1] Define `BuilderInput` struct with `darling::FromDeriveInput` in `builder/src/lib.rs`
+- [ ] T079 [US1] Define `BuilderField` struct with `darling::FromField` in `builder/src/lib.rs`
+- [ ] T080 [US1] Replace `get_each_attribute()` with darling's automatic parsing in `builder/src/lib.rs`
+- [ ] T081 [US1] Simplify `get_option_inner_type()` using early returns and let-else in `builder/src/lib.rs`
+- [ ] T082 [US1] Simplify `get_vec_inner_type()` using early returns and let-else in `builder/src/lib.rs`
+- [ ] T083 [US1] Verify all 9 builder tests pass: `cd builder && cargo test`
+- [ ] T084 [US1] Verify clippy clean: `cd builder && cargo clippy --all-targets`
+
+**Checkpoint**: Builder refactoring complete — max nesting depth ≤ 4
+
+### Phase 9.2: Debug Macro Refactoring
+
+- [ ] T085 [US2] Define `DebugInput` struct with `darling::FromDeriveInput` in `debug/src/lib.rs`
+- [ ] T086 [US2] Define `DebugField` struct with `darling::FromField` in `debug/src/lib.rs`
+- [ ] T087 [US2] Replace `get_debug_format()` with darling's automatic parsing in `debug/src/lib.rs`
+- [ ] T088 [US2] Replace `get_debug_bound()` with darling's automatic parsing in `debug/src/lib.rs`
+- [ ] T089 [US2] Verify all 8 debug tests pass: `cd debug && cargo test`
+- [ ] T090 [US2] Verify clippy clean: `cd debug && cargo clippy --all-targets`
+
+**Checkpoint**: Debug refactoring complete — max nesting depth ≤ 4
+
+### Phase 9.3: Sorted Macro Refactoring
+
+- [ ] T091 [US4] Add `#[proc_macro_error]` attribute to `sorted()` function in `sorted/src/lib.rs`
+- [ ] T092 [US4] Add `#[proc_macro_error]` attribute to `check()` function in `sorted/src/lib.rs`
+- [ ] T093 [US4] Replace error collection Vec with `emit_error!` in `SortedChecker` in `sorted/src/lib.rs`
+- [ ] T094 [US4] Update `sorted_impl()` to use `abort!` for fatal errors in `sorted/src/lib.rs`
+- [ ] T095 [US4] Verify all 8 sorted tests pass: `cd sorted && cargo test`
+- [ ] T096 [US4] Verify clippy clean: `cd sorted && cargo clippy --all-targets`
+
+**Checkpoint**: Sorted refactoring complete — multi-error emission working
+
+### Phase 9.4: Bitfield Macro Refactoring
+
+- [ ] T097 [US5] Define `BitfieldField` struct with `darling::FromField` in `bitfield/impl/src/lib.rs`
+- [ ] T098 [US5] Replace `get_bits_attribute()` with darling's automatic parsing in `bitfield/impl/src/lib.rs`
+- [ ] T099 [US5] Verify all 12 bitfield tests pass: `cd bitfield && cargo test`
+- [ ] T100 [US5] Verify clippy clean: `cd bitfield && cargo clippy --all-targets`
+
+**Checkpoint**: Bitfield refactoring complete — max nesting depth ≤ 4
+
+### Phase 9.5: Final Validation
+
+- [ ] T101 Run full test suite: `cargo test --workspace`
+- [ ] T102 Run full clippy: `cargo clippy --all-targets`
+- [ ] T103 Verify max nesting depth ≤ 4 in all refactored files
+- [ ] T104 Update .stderr files if error message format changes: `TRYBUILD=overwrite cargo test`
+
+**Checkpoint**: All refactoring complete — constitution compliance achieved
+
+---
+
 ## Task Summary
 
 | Phase | Tasks | Parallel | Description |
@@ -289,9 +352,10 @@ For each test file (e.g., `01-parse.rs`):
 | 6. US4 Sorted | T047-T056 | 0/10 | Implement sorted (8 tests) |
 | 7. US5 Bitfield | T057-T070 | 0/14 | Implement bitfield (12 tests) |
 | 8. Polish | T071-T076 | 3/6 | Final validation |
+| **9. Refactor** | **T077-T104** | **4/28** | **Code quality refactoring** |
 
-**Total Tasks**: 76  
-**Parallel Opportunities**: 15 tasks can run in parallel within their phase  
+**Total Tasks**: 104  
+**Parallel Opportunities**: 19 tasks can run in parallel within their phase  
 **User Stories**: Each is independently testable
 
 ---
@@ -304,4 +368,5 @@ For each test file (e.g., `01-parse.rs`):
 - Commit after each passing test to maintain working state
 - Use `cargo expand` to debug generated code
 - Use `eprintln!` in macros during development (remove before final)
+- **Phase 9 refactoring**: Run tests after EACH task to catch regressions early
 

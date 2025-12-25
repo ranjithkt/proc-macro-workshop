@@ -3,6 +3,7 @@
 Auto-generated from all feature plans. Last updated: 2025-12-25
 
 ## Active Technologies
+- N/A (procedural macros have no runtime storage) (001-proc-macro-implementations)
 
 - Rust stable (edition 2021) (001-proc-macro-implementations)
 
@@ -22,6 +23,7 @@ cargo test [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECH
 Rust stable (edition 2021): Follow standard conventions
 
 ## Recent Changes
+- 001-proc-macro-implementations: Added Rust stable (edition 2021)
 
 - 001-proc-macro-implementations: Added Rust stable (edition 2021)
 
