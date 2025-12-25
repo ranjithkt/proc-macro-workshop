@@ -6,40 +6,7 @@ use syn::{
     GenericArgument, Ident, Path, PathArguments, PathSegment, Type, TypePath, Visibility,
 };
 
-// Before moving on, have the macro also generate:
-//
-//     pub struct CommandBuilder {
-//         executable: Option<String>,
-//         args: Option<Vec<String>>,
-//         env: Option<Vec<String>>,
-//         current_dir: Option<String>,
-//     }
-//
-// and in the `builder` function:
-//
-//     impl Command {
-//         pub fn builder() -> CommandBuilder {
-//             CommandBuilder {
-//                 executable: None,
-//                 args: None,
-//                 env: None,
-//                 current_dir: None,
-//             }
-//         }
-//     }
-//
-//
-
-//     impl CommandBuilder {
-//         fn executable(&mut self, executable: String) -> &mut Self {
-//             self.executable = Some(executable);
-//             self
-//         }
-//
-//         ...
-//     }
-
-#[proc_macro_derive(Builder)]
+#[proc_macro_derive(Builder, attributes(builder))]
 pub fn derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     eprintln!("{:#?}", input);
@@ -56,18 +23,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
     } else {
         unimplemented!()
     };
-
-    fn is_ty_option(ty: &Type) -> bool {
-        if let Type::Path(TypePath {
-            path: Path { segments, .. },
-            ..
-        }) = ty
-        {
-            return !segments.is_empty() && segments.iter().last().unwrap().ident == "Option";
-        }
-
-        false
-    }
 
     fn get_option_generic_type(ty: &Type) -> Option<&Type> {
         if let Type::Path(TypePath {
@@ -92,7 +47,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let optionized = fields.iter().map(|field| {
         let ty = field.ty.clone();
 
-        let optional_ty = if is_ty_option(&ty) {
+        let optional_ty = if get_option_generic_type(&ty).is_some() {
             parse_quote! {
                 #ty
             }
