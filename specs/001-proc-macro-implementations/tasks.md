@@ -19,15 +19,15 @@
 
 **Purpose**: Configure dependencies for all macro crates
 
-- [ ] T001 Add syn, quote, proc-macro2 dependencies to `builder/Cargo.toml`
-- [ ] T002 [P] Add syn, quote, proc-macro2 dependencies to `debug/Cargo.toml`
-- [ ] T003 [P] Add syn, quote, proc-macro2 dependencies to `seq/Cargo.toml`
-- [ ] T004 [P] Add syn, quote, proc-macro2, visit-mut dependencies to `sorted/Cargo.toml`
-- [ ] T005 [P] Add syn, quote, proc-macro2 dependencies to `bitfield/impl/Cargo.toml`
-- [ ] T006 Add darling dependency to `builder/Cargo.toml` for attribute parsing
-- [ ] T007 [P] Add darling dependency to `debug/Cargo.toml` for attribute parsing
-- [ ] T008 [P] Add proc-macro-error2 dependency to `sorted/Cargo.toml` for multi-error handling
-- [ ] T009 [P] Add darling and proc-macro-error2 dependencies to `bitfield/impl/Cargo.toml`
+- [X] T001 Add syn, quote, proc-macro2 dependencies to `builder/Cargo.toml`
+- [X] T002 [P] Add syn, quote, proc-macro2 dependencies to `debug/Cargo.toml`
+- [X] T003 [P] Add syn, quote, proc-macro2 dependencies to `seq/Cargo.toml`
+- [X] T004 [P] Add syn, quote, proc-macro2, visit-mut dependencies to `sorted/Cargo.toml`
+- [X] T005 [P] Add syn, quote, proc-macro2 dependencies to `bitfield/impl/Cargo.toml`
+- [X] T006 Add darling dependency to `builder/Cargo.toml` for attribute parsing
+- [X] T007 [P] Add darling dependency to `debug/Cargo.toml` for attribute parsing
+- [X] T008 [P] Add proc-macro-error2 dependency to `sorted/Cargo.toml` for multi-error handling
+- [X] T009 [P] Add darling and proc-macro-error2 dependencies to `bitfield/impl/Cargo.toml`
 
 **Checkpoint**: All projects have required dependencies configured
 
@@ -39,11 +39,11 @@
 
 **⚠️ CRITICAL**: Verify each project compiles before implementing
 
-- [ ] T010 Verify `cargo check` passes in `builder/` with empty macro stub
-- [ ] T011 [P] Verify `cargo check` passes in `debug/` with empty macro stub
-- [ ] T012 [P] Verify `cargo check` passes in `seq/` with empty macro stub
-- [ ] T013 [P] Verify `cargo check` passes in `sorted/` with empty macro stub
-- [ ] T014 [P] Verify `cargo check` passes in `bitfield/` with empty macro stub
+- [X] T010 Verify `cargo check` passes in `builder/` with empty macro stub
+- [X] T011 [P] Verify `cargo check` passes in `debug/` with empty macro stub
+- [X] T012 [P] Verify `cargo check` passes in `seq/` with empty macro stub
+- [X] T013 [P] Verify `cargo check` passes in `sorted/` with empty macro stub
+- [X] T014 [P] Verify `cargo check` passes in `bitfield/` with empty macro stub
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -57,17 +57,17 @@
 
 ### Implementation for Builder (9 tests)
 
-- [ ] T015 [US1] Implement basic parsing in `builder/src/lib.rs` (test 01-parse.rs)
-- [ ] T016 [US1] Generate Builder struct with Option-wrapped fields in `builder/src/lib.rs` (test 02-create-builder.rs)
-- [ ] T017 [US1] Generate setter methods returning `&mut Self` in `builder/src/lib.rs` (test 03-call-setters.rs)
-- [ ] T018 [US1] Implement `build()` method with required field validation in `builder/src/lib.rs` (test 04-call-build.rs)
-- [ ] T019 [US1] Ensure method chaining works with `&mut self` pattern in `builder/src/lib.rs` (test 05-method-chaining.rs)
-- [ ] T020 [US1] Handle `Option<T>` fields as optional (no error if unset) in `builder/src/lib.rs` (test 06-optional-field.rs)
-- [ ] T021 [US1] Implement `#[builder(each = "...")]` for Vec fields using darling in `builder/src/lib.rs` (test 07-repeated-field.rs)
-- [ ] T022 [US1] Add error handling for unrecognized attributes with proper spans in `builder/src/lib.rs` (test 08-unrecognized-attribute.rs)
-- [ ] T023 [US1] Use fully-qualified paths (::std::option::Option) in `builder/src/lib.rs` (test 09-redefined-prelude-types.rs)
-- [ ] T024 [US1] Uncomment all tests in `builder/tests/progress.rs` and verify all pass
-- [ ] T025 [US1] Run `cargo clippy` in `builder/` and fix any warnings
+- [X] T015 [US1] Implement basic parsing in `builder/src/lib.rs` (test 01-parse.rs)
+- [X] T016 [US1] Generate Builder struct with Option-wrapped fields in `builder/src/lib.rs` (test 02-create-builder.rs)
+- [X] T017 [US1] Generate setter methods returning `&mut Self` in `builder/src/lib.rs` (test 03-call-setters.rs)
+- [X] T018 [US1] Implement `build()` method with required field validation in `builder/src/lib.rs` (test 04-call-build.rs)
+- [X] T019 [US1] Ensure method chaining works with `&mut self` pattern in `builder/src/lib.rs` (test 05-method-chaining.rs)
+- [X] T020 [US1] Handle `Option<T>` fields as optional (no error if unset) in `builder/src/lib.rs` (test 06-optional-field.rs)
+- [X] T021 [US1] Implement `#[builder(each = "...")]` for Vec fields using darling in `builder/src/lib.rs` (test 07-repeated-field.rs)
+- [X] T022 [US1] Add error handling for unrecognized attributes with proper spans in `builder/src/lib.rs` (test 08-unrecognized-attribute.rs)
+- [X] T023 [US1] Use fully-qualified paths (::std::option::Option) in `builder/src/lib.rs` (test 09-redefined-prelude-types.rs)
+- [X] T024 [US1] Uncomment all tests in `builder/tests/progress.rs` and verify all pass
+- [X] T025 [US1] Run `cargo clippy` in `builder/` and fix any warnings
 
 **Checkpoint**: Builder macro complete — `cargo test` passes in `builder/`
 
@@ -81,16 +81,16 @@
 
 ### Implementation for CustomDebug (8 tests)
 
-- [ ] T026 [US2] Implement basic parsing in `debug/src/lib.rs` (test 01-parse.rs)
-- [ ] T027 [US2] Generate basic Debug impl with debug_struct in `debug/src/lib.rs` (test 02-impl-debug.rs)
-- [ ] T028 [US2] Parse `#[debug = "format"]` attribute and apply to fields in `debug/src/lib.rs` (test 03-custom-format.rs)
-- [ ] T029 [US2] Implement trait bound inference for generic type parameters in `debug/src/lib.rs` (test 04-type-parameter.rs)
-- [ ] T030 [US2] Skip PhantomData fields from trait bound inference in `debug/src/lib.rs` (test 05-phantom-data.rs)
-- [ ] T031 [US2] Handle associated type bounds correctly in `debug/src/lib.rs` (test 06-bound-trouble.rs)
-- [ ] T032 [US2] Continue associated type handling in `debug/src/lib.rs` (test 07-associated-type.rs)
-- [ ] T033 [US2] Implement `#[debug(bound = "...")]` escape hatch in `debug/src/lib.rs` (test 08-escape-hatch.rs)
-- [ ] T034 [US2] Uncomment all tests in `debug/tests/progress.rs` and verify all pass
-- [ ] T035 [US2] Run `cargo clippy` in `debug/` and fix any warnings
+- [X] T026 [US2] Implement basic parsing in `debug/src/lib.rs` (test 01-parse.rs)
+- [X] T027 [US2] Generate basic Debug impl with debug_struct in `debug/src/lib.rs` (test 02-impl-debug.rs)
+- [X] T028 [US2] Parse `#[debug = "format"]` attribute and apply to fields in `debug/src/lib.rs` (test 03-custom-format.rs)
+- [X] T029 [US2] Implement trait bound inference for generic type parameters in `debug/src/lib.rs` (test 04-type-parameter.rs)
+- [X] T030 [US2] Skip PhantomData fields from trait bound inference in `debug/src/lib.rs` (test 05-phantom-data.rs)
+- [X] T031 [US2] Handle associated type bounds correctly in `debug/src/lib.rs` (test 06-bound-trouble.rs)
+- [X] T032 [US2] Continue associated type handling in `debug/src/lib.rs` (test 07-associated-type.rs)
+- [X] T033 [US2] Implement `#[debug(bound = "...")]` escape hatch in `debug/src/lib.rs` (test 08-escape-hatch.rs)
+- [X] T034 [US2] Uncomment all tests in `debug/tests/progress.rs` and verify all pass
+- [X] T035 [US2] Run `cargo clippy` in `debug/` and fix any warnings
 
 **Checkpoint**: CustomDebug macro complete — `cargo test` passes in `debug/`
 
@@ -104,17 +104,17 @@
 
 ### Implementation for Seq (9 tests)
 
-- [ ] T036 [US3] Parse `N in 0..8` header syntax in `seq/src/lib.rs` (test 01-parse-header.rs)
-- [ ] T037 [US3] Parse body tokens and return them in `seq/src/lib.rs` (test 02-parse-body.rs)
-- [ ] T038 [US3] Handle error spans correctly for invalid input in `seq/src/lib.rs` (test 03-expand-four-errors.rs)
-- [ ] T039 [US3] Implement `~N` identifier pasting in `seq/src/lib.rs` (test 04-paste-ident.rs)
-- [ ] T040 [US3] Implement `#(...)*` repeat sections in `seq/src/lib.rs` (test 05-repeat-section.rs)
-- [ ] T041 [US3] Support array initialization use case in `seq/src/lib.rs` (test 06-init-array.rs)
-- [ ] T042 [US3] Support inclusive ranges `0..=N` in `seq/src/lib.rs` (test 07-inclusive-range.rs)
-- [ ] T043 [US3] Ensure correct spans for pasted identifiers in `seq/src/lib.rs` (test 08-ident-span.rs)
-- [ ] T044 [US3] Handle interaction with macro_rules! in `seq/src/lib.rs` (test 09-interaction-with-macrorules.rs)
-- [ ] T045 [US3] Uncomment all tests in `seq/tests/progress.rs` and verify all pass
-- [ ] T046 [US3] Run `cargo clippy` in `seq/` and fix any warnings
+- [X] T036 [US3] Parse `N in 0..8` header syntax in `seq/src/lib.rs` (test 01-parse-header.rs)
+- [X] T037 [US3] Parse body tokens and return them in `seq/src/lib.rs` (test 02-parse-body.rs)
+- [X] T038 [US3] Handle error spans correctly for invalid input in `seq/src/lib.rs` (test 03-expand-four-errors.rs)
+- [X] T039 [US3] Implement `~N` identifier pasting in `seq/src/lib.rs` (test 04-paste-ident.rs)
+- [X] T040 [US3] Implement `#(...)*` repeat sections in `seq/src/lib.rs` (test 05-repeat-section.rs)
+- [X] T041 [US3] Support array initialization use case in `seq/src/lib.rs` (test 06-init-array.rs)
+- [X] T042 [US3] Support inclusive ranges `0..=N` in `seq/src/lib.rs` (test 07-inclusive-range.rs)
+- [X] T043 [US3] Ensure correct spans for pasted identifiers in `seq/src/lib.rs` (test 08-ident-span.rs)
+- [X] T044 [US3] Handle interaction with macro_rules! in `seq/src/lib.rs` (test 09-interaction-with-macrorules.rs)
+- [X] T045 [US3] Uncomment all tests in `seq/tests/progress.rs` and verify all pass
+- [X] T046 [US3] Run `cargo clippy` in `seq/` and fix any warnings
 
 **Checkpoint**: Seq macro complete — `cargo test` passes in `seq/`
 
@@ -128,16 +128,16 @@
 
 ### Implementation for Sorted (8 tests)
 
-- [ ] T047 [US4] Parse enum and return unchanged in `sorted/src/lib.rs` (test 01-parse-enum.rs)
-- [ ] T048 [US4] Reject non-enum items with appropriate error in `sorted/src/lib.rs` (test 02-not-enum.rs)
-- [ ] T049 [US4] Detect out-of-order variants and emit precise errors in `sorted/src/lib.rs` (test 03-out-of-order.rs)
-- [ ] T050 [US4] Handle variants with associated data in `sorted/src/lib.rs` (test 04-variants-with-data.rs)
-- [ ] T051 [US4] Implement `#[sorted::check]` using VisitMut pattern in `sorted/src/lib.rs` (test 05-match-expr.rs)
-- [ ] T052 [US4] Extract variant names from path patterns (Error::Io) in `sorted/src/lib.rs` (test 06-pattern-path.rs)
-- [ ] T053 [US4] Handle unrecognized patterns with clear errors in `sorted/src/lib.rs` (test 07-unrecognized-pattern.rs)
-- [ ] T054 [US4] Handle underscore wildcard pattern correctly in `sorted/src/lib.rs` (test 08-underscore.rs)
-- [ ] T055 [US4] Uncomment all tests in `sorted/tests/progress.rs` and verify all pass
-- [ ] T056 [US4] Run `cargo clippy` in `sorted/` and fix any warnings
+- [X] T047 [US4] Parse enum and return unchanged in `sorted/src/lib.rs` (test 01-parse-enum.rs)
+- [X] T048 [US4] Reject non-enum items with appropriate error in `sorted/src/lib.rs` (test 02-not-enum.rs)
+- [X] T049 [US4] Detect out-of-order variants and emit precise errors in `sorted/src/lib.rs` (test 03-out-of-order.rs)
+- [X] T050 [US4] Handle variants with associated data in `sorted/src/lib.rs` (test 04-variants-with-data.rs)
+- [X] T051 [US4] Implement `#[sorted::check]` using VisitMut pattern in `sorted/src/lib.rs` (test 05-match-expr.rs)
+- [X] T052 [US4] Extract variant names from path patterns (Error::Io) in `sorted/src/lib.rs` (test 06-pattern-path.rs)
+- [X] T053 [US4] Handle unrecognized patterns with clear errors in `sorted/src/lib.rs` (test 07-unrecognized-pattern.rs)
+- [X] T054 [US4] Handle underscore wildcard pattern correctly in `sorted/src/lib.rs` (test 08-underscore.rs)
+- [X] T055 [US4] Uncomment all tests in `sorted/tests/progress.rs` and verify all pass
+- [X] T056 [US4] Run `cargo clippy` in `sorted/` and fix any warnings
 
 **Checkpoint**: Sorted macro complete — `cargo test` passes in `sorted/`
 
@@ -151,20 +151,20 @@
 
 ### Implementation for Bitfield (12 tests)
 
-- [ ] T057 [US5] Create Specifier trait and B1-B64 types in `bitfield/src/lib.rs` (test 01-specifier-types.rs)
-- [ ] T058 [US5] Implement struct storage transformation (byte array) in `bitfield/impl/src/lib.rs` (test 02-storage.rs)
-- [ ] T059 [US5] Generate get_* and set_* accessor methods in `bitfield/impl/src/lib.rs` (test 03-accessors.rs)
-- [ ] T060 [US5] Validate total bits is multiple of 8 at compile time in `bitfield/impl/src/lib.rs` (test 04-multiple-of-8bits.rs)
-- [ ] T061 [US5] Return correct integer types (u8/u16/u32/u64) from accessors in `bitfield/impl/src/lib.rs` (test 05-accessor-signatures.rs)
-- [ ] T062 [US5] Implement BitfieldSpecifier derive for enums in `bitfield/impl/src/lib.rs` (test 06-enums.rs)
-- [ ] T063 [US5] Handle enums without explicit discriminants in `bitfield/impl/src/lib.rs` (test 07-optional-discriminant.rs)
-- [ ] T064 [US5] Validate enum variant count is power of two in `bitfield/impl/src/lib.rs` (test 08-non-power-of-two.rs)
-- [ ] T065 [US5] Validate discriminant values fit in bit width in `bitfield/impl/src/lib.rs` (test 09-variant-out-of-range.rs)
-- [ ] T066 [US5] Implement `#[bits = N]` attribute for explicit width in `bitfield/impl/src/lib.rs` (test 10-bits-attribute.rs)
-- [ ] T067 [US5] Validate `#[bits = N]` matches actual specifier width in `bitfield/impl/src/lib.rs` (test 11-bits-attribute-wrong.rs)
-- [ ] T068 [US5] Handle edge cases in bit accessors (spanning bytes) in `bitfield/impl/src/lib.rs` (test 12-accessors-edge.rs)
-- [ ] T069 [US5] Uncomment all tests in `bitfield/tests/progress.rs` and verify all pass
-- [ ] T070 [US5] Run `cargo clippy` in `bitfield/` and fix any warnings
+- [X] T057 [US5] Create Specifier trait and B1-B64 types in `bitfield/src/lib.rs` (test 01-specifier-types.rs)
+- [X] T058 [US5] Implement struct storage transformation (byte array) in `bitfield/impl/src/lib.rs` (test 02-storage.rs)
+- [X] T059 [US5] Generate get_* and set_* accessor methods in `bitfield/impl/src/lib.rs` (test 03-accessors.rs)
+- [X] T060 [US5] Validate total bits is multiple of 8 at compile time in `bitfield/impl/src/lib.rs` (test 04-multiple-of-8bits.rs)
+- [X] T061 [US5] Return correct integer types (u8/u16/u32/u64) from accessors in `bitfield/impl/src/lib.rs` (test 05-accessor-signatures.rs)
+- [X] T062 [US5] Implement BitfieldSpecifier derive for enums in `bitfield/impl/src/lib.rs` (test 06-enums.rs)
+- [X] T063 [US5] Handle enums without explicit discriminants in `bitfield/impl/src/lib.rs` (test 07-optional-discriminant.rs)
+- [X] T064 [US5] Validate enum variant count is power of two in `bitfield/impl/src/lib.rs` (test 08-non-power-of-two.rs)
+- [X] T065 [US5] Validate discriminant values fit in bit width in `bitfield/impl/src/lib.rs` (test 09-variant-out-of-range.rs)
+- [X] T066 [US5] Implement `#[bits = N]` attribute for explicit width in `bitfield/impl/src/lib.rs` (test 10-bits-attribute.rs)
+- [X] T067 [US5] Validate `#[bits = N]` matches actual specifier width in `bitfield/impl/src/lib.rs` (test 11-bits-attribute-wrong.rs)
+- [X] T068 [US5] Handle edge cases in bit accessors (spanning bytes) in `bitfield/impl/src/lib.rs` (test 12-accessors-edge.rs)
+- [X] T069 [US5] Uncomment all tests in `bitfield/tests/progress.rs` and verify all pass
+- [X] T070 [US5] Run `cargo clippy` in `bitfield/` and fix any warnings
 
 **Checkpoint**: Bitfield macro complete — `cargo test` passes in `bitfield/`
 
@@ -174,12 +174,12 @@
 
 **Purpose**: Final validation across all projects
 
-- [ ] T071 Run `cargo test --workspace` from repository root
-- [ ] T072 [P] Run `cargo clippy --all-targets` in each project directory
-- [ ] T073 [P] Run `cargo doc` in each project and verify no warnings
-- [ ] T074 [P] Add doc comments to public macro entry points in all `src/lib.rs` files
-- [ ] T075 Verify `cargo expand` output is readable for sample inputs in `main.rs`
-- [ ] T076 Final review: ensure all `.stderr` files match expected error output
+- [X] T071 Run `cargo test --workspace` from repository root
+- [X] T072 [P] Run `cargo clippy --all-targets` in each project directory
+- [X] T073 [P] Run `cargo doc` in each project and verify no warnings
+- [X] T074 [P] Add doc comments to public macro entry points in all `src/lib.rs` files
+- [X] T075 Verify `cargo expand` output is readable for sample inputs in `main.rs`
+- [X] T076 Final review: ensure all `.stderr` files match expected error output
 
 ---
 

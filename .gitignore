@@ -1,3 +1,23 @@
 Cargo.lock
 target/
 wip/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Rust additional
+*.rs.bk
+*.rlib
+*.prof*
+
+# Logs and environment
+*.log
+.env*
