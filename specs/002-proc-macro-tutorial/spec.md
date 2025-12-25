@@ -2,8 +2,9 @@
 
 **Feature Branch**: `002-proc-macro-tutorial`  
 **Created**: 2025-12-25  
+**Updated**: 2025-12-25  
 **Status**: Draft  
-**Input**: Create educational documentation explaining proc-macro concepts from all crates used (proc-macro, proc-macro2, syn, quote, darling) with textbook-style flow, code examples, and eprintln debugging demonstrations
+**Input**: Create educational documentation explaining proc-macro concepts from all crates used (proc-macro, proc-macro2, syn, quote, darling, heck) with textbook-style flow, code examples, and eprintln debugging demonstrations
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -71,7 +72,22 @@ A developer is manually parsing `#[attribute(key = "value")]` style attributes a
 
 ---
 
-### User Story 5 - Understanding the Complete Pipeline (Priority: P2)
+### User Story 5 - Utility Crates: heck for Case Conversion (Priority: P3)
+
+A developer needs to transform identifier names (e.g., convert `field_name` to `setFieldName` or `FIELD_NAME`). They want to learn about helper crates like heck that make these transformations trivial.
+
+**Why this priority**: heck is a small utility crate that solves a specific problem elegantly. Not essential but useful for real-world macros.
+
+**Independent Test**: Can be fully tested by the reader using heck to convert identifiers in a builder pattern macro.
+
+**Acceptance Scenarios**:
+
+1. **Given** a need to convert snake_case to PascalCase, **When** heck is demonstrated, **Then** the reader can apply case conversions in their macros
+2. **Given** multiple case conversion needs (camelCase, SCREAMING_SNAKE, etc.), **When** heck's API is shown, **Then** the reader knows the full range of available conversions
+
+---
+
+### User Story 6 - Understanding the Complete Pipeline (Priority: P2)
 
 A developer has learned the individual crates but wants to see how they fit together in a real-world macro. They need a visual and narrative that connects all the concepts into a coherent mental model.
 
@@ -101,21 +117,34 @@ A developer has learned the individual crates but wants to see how they fit toge
 - **FR-002**: Documentation MUST explain proc-macro2 and its relationship to the std proc-macro crate
 - **FR-003**: Documentation MUST cover syn's core types: DeriveInput, Data, Fields, Attribute, Meta, and the parse module
 - **FR-004**: Documentation MUST explain quote's macro syntax including variable interpolation (#var) and iteration (#(#iter)*)
-- **FR-005**: Documentation MUST cover darling's traits: FromDeriveInput, FromField, FromMeta, and common attributes
-- **FR-006**: Documentation MUST include runnable code examples that demonstrate eprintln debugging of TokenStreams and parsed structures
-- **FR-007**: Documentation MUST be organized as multiple linked markdown files with a clear progression from foundational to advanced concepts
-- **FR-008**: Each chapter MUST include a "What You'll Learn" summary and a "Key Takeaways" conclusion
-- **FR-009**: Documentation MUST include visual diagrams (ASCII or Mermaid) showing type relationships and data flow
-- **FR-010**: Documentation MUST maintain an entertaining, conversational tone while being technically accurate
-- **FR-011**: Code examples MUST show both the Rust code being parsed AND the output of eprintln debugging
-- **FR-012**: Documentation MUST explain how each crate solves problems that the previous crate left unsolved (building narrative)
+- **FR-005**: Documentation MUST cover darling's traits: FromDeriveInput, FromField, FromMeta, and common attributes like forward_attrs
+- **FR-006**: Documentation MUST cover heck crate for case conversions (snake_case, PascalCase, camelCase, etc.)
+- **FR-007**: Documentation MUST include runnable code examples that demonstrate eprintln debugging of TokenStreams and parsed structures
+- **FR-008**: Documentation MUST be organized as multiple linked markdown files with a clear progression from foundational to advanced concepts
+- **FR-009**: Each chapter MUST include a "What You'll Learn" summary and a "Key Takeaways" conclusion
+
+### Visual Diagram Requirements
+
+- **FR-010**: Documentation MUST include a **TokenStream structure diagram** showing how code becomes tokens (ASCII art or Mermaid flowchart)
+- **FR-011**: Documentation MUST include a **syn type hierarchy diagram** showing relationships between DeriveInput, Data, Fields, etc.
+- **FR-012**: Documentation MUST include a **macro pipeline flowchart** showing: Input → proc-macro → syn parse → transform → quote → proc-macro → Output
+- **FR-013**: Documentation MUST include **before/after code comparison diagrams** for darling refactoring examples
+- **FR-014**: All diagrams MUST be renderable in standard markdown (Mermaid syntax preferred for compatibility)
+
+### Tone and Style Requirements
+
+- **FR-015**: Documentation MUST maintain an entertaining, conversational tone while being technically accurate
+- **FR-016**: Code examples MUST show both the Rust code being parsed AND the output of eprintln debugging
+- **FR-017**: Documentation MUST explain how each crate solves problems that the previous crate left unsolved (building narrative)
+- **FR-018**: Documentation MUST include "Aha!" moments that highlight key insights
 
 ### Key Entities
 
 - **Chapter**: A standalone markdown file covering one major concept, with prerequisites listed
 - **Code Example**: A compilable snippet with input code, macro code, and expected output (both success and debug prints)
+- **Diagram**: A visual representation (Mermaid or ASCII) embedded in markdown showing type relationships or data flow
 - **Concept**: A named idea (e.g., "TokenTree", "DeriveInput") with definition, examples, and connections to other concepts
-- **Crate**: One of the 5 crates being documented, with its purpose, key types, and role in the ecosystem
+- **Crate**: One of the 6 crates being documented (proc-macro, proc-macro2, syn, quote, darling, heck), with its purpose, key types, and role in the ecosystem
 
 ## Success Criteria *(mandatory)*
 
@@ -126,11 +155,18 @@ A developer has learned the individual crates but wants to see how they fit toge
 - **SC-003**: 100% of code examples compile and produce the documented output
 - **SC-004**: A reader completing the tutorial can write a basic derive macro from scratch without referring back to documentation
 - **SC-005**: The documentation covers all types we actually used in the proc-macro-workshop implementations
+- **SC-006**: Documentation contains at least 4 visual diagrams (TokenStream structure, syn hierarchy, pipeline flowchart, darling comparison)
 
 ## Assumptions
 
 - Readers have basic Rust syntax knowledge (structs, enums, traits, generics)
 - Readers do not need prior proc-macro experience
 - The documentation targets Rust 2021 edition
-- Code examples use the same crate versions as the proc-macro-workshop (syn 2.x, quote 1.x, darling 0.20.x)
+- Code examples use the same crate versions as the proc-macro-workshop:
+  - syn 2.x
+  - quote 1.x
+  - proc-macro2 1.x
+  - darling 0.20.x
+  - heck 0.5.x
 - Readers have access to cargo and can run code examples locally
+- Mermaid diagrams are viewable in GitHub, VS Code, and most modern markdown renderers

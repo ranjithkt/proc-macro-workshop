@@ -4,6 +4,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-25
 
 ## Active Technologies
 - N/A (procedural macros have no runtime storage) (001-proc-macro-implementations)
+- Markdown with Mermaid diagrams, Rust code examples (Rust 2021 edition) + Documentation tooling (mdBook optional), Mermaid for diagrams (002-proc-macro-tutorial)
+- N/A (static markdown files) (002-proc-macro-tutorial)
 
 - Rust stable (edition 2021) (001-proc-macro-implementations)
 
@@ -23,6 +25,7 @@ cargo test [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECH
 Rust stable (edition 2021): Follow standard conventions
 
 ## Recent Changes
+- 002-proc-macro-tutorial: Added Markdown with Mermaid diagrams, Rust code examples (Rust 2021 edition) + Documentation tooling (mdBook optional), Mermaid for diagrams
 - 001-proc-macro-implementations: Added Rust stable (edition 2021)
 
 - 001-proc-macro-implementations: Added Rust stable (edition 2021)
