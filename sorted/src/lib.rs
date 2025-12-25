@@ -1,5 +1,6 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
+use proc_macro_error2::proc_macro_error;
 use quote::quote;
 use syn::{
     parse_macro_input, spanned::Spanned, visit_mut::VisitMut, Error, ExprMatch, Item, ItemFn, Pat,
@@ -7,6 +8,7 @@ use syn::{
 };
 
 #[proc_macro_attribute]
+#[proc_macro_error]
 pub fn sorted(args: TokenStream, input: TokenStream) -> TokenStream {
     let _ = args;
     let item = parse_macro_input!(input as Item);
@@ -62,6 +64,7 @@ fn sorted_impl(item: &Item) -> Result<proc_macro2::TokenStream> {
 }
 
 #[proc_macro_attribute]
+#[proc_macro_error]
 pub fn check(args: TokenStream, input: TokenStream) -> TokenStream {
     let _ = args;
     let mut item_fn = parse_macro_input!(input as ItemFn);
