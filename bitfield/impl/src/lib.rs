@@ -23,30 +23,23 @@ fn bitfield_impl(item: ItemStruct) -> Result<proc_macro2::TokenStream> {
     let name = &item.ident;
     let vis = &item.vis;
 
-    let fields = match &item.fields {
-        Fields::Named(fields) => &fields.named,
-        _ => {
-            return Err(Error::new_spanned(
-                &item,
-                "bitfield only supports structs with named fields",
-            ))
-        }
+    let Fields::Named(named_fields) = &item.fields else {
+        return Err(Error::new_spanned(
+            &item,
+            "bitfield only supports structs with named fields",
+        ));
     };
 
     // Collect field info
     let mut field_infos: Vec<FieldInfo<'_>> = Vec::new();
     let mut total_bits_terms: Vec<proc_macro2::TokenStream> = Vec::new();
 
-    for field in fields.iter() {
+    for field in named_fields.named.iter() {
         let field_name = field.ident.as_ref().unwrap();
         let field_ty = &field.ty;
-
-        // Check for #[bits = N] attribute
         let bits_attr = get_bits_attribute(&field.attrs)?;
 
         field_infos.push((field_name, field_ty, bits_attr));
-
-        // Build up the total bits expression
         total_bits_terms.push(quote! { <#field_ty as ::bitfield::Specifier>::BITS });
     }
 
@@ -85,14 +78,12 @@ fn bitfield_impl(item: ItemStruct) -> Result<proc_macro2::TokenStream> {
         };
 
         // Generate #[bits = N] check if specified
-        let bits_check = if let Some((expected, span)) = bits_attr {
+        let bits_check = bits_attr.as_ref().map_or(quote! {}, |(expected, span)| {
             let check_name = format_ident!("__bits_check_{}", idx);
             quote_spanned! {*span=>
                 const #check_name: [(); #expected] = [(); <#field_ty as ::bitfield::Specifier>::BITS];
             }
-        } else {
-            quote! {}
-        };
+        });
 
         accessors.push(quote! {
             #bits_check
@@ -112,11 +103,10 @@ fn bitfield_impl(item: ItemStruct) -> Result<proc_macro2::TokenStream> {
             }
         });
 
-        // Add this field's bits to the offset for the next field
         bit_offset_parts.push(quote! { <#field_ty as ::bitfield::Specifier>::BITS });
     }
 
-    let expanded = quote! {
+    Ok(quote! {
         #[repr(C)]
         #vis struct #name {
             data: [u8; #size_expr],
@@ -165,9 +155,7 @@ fn bitfield_impl(item: ItemStruct) -> Result<proc_macro2::TokenStream> {
                 >::CHECK;
             };
         }
-    };
-
-    Ok(expanded)
+    })
 }
 
 fn get_bits_attribute(attrs: &[syn::Attribute]) -> Result<Option<(usize, proc_macro2::Span)>> {
@@ -176,15 +164,19 @@ fn get_bits_attribute(attrs: &[syn::Attribute]) -> Result<Option<(usize, proc_ma
             continue;
         }
 
-        if let Meta::NameValue(nv) = &attr.meta {
-            if let syn::Expr::Lit(syn::ExprLit {
-                lit: Lit::Int(lit_int),
-                ..
-            }) = &nv.value
-            {
-                return Ok(Some((lit_int.base10_parse()?, lit_int.span())));
-            }
-        }
+        let Meta::NameValue(nv) = &attr.meta else {
+            continue;
+        };
+
+        let syn::Expr::Lit(syn::ExprLit {
+            lit: Lit::Int(lit_int),
+            ..
+        }) = &nv.value
+        else {
+            continue;
+        };
+
+        return Ok(Some((lit_int.base10_parse()?, lit_int.span())));
     }
     Ok(None)
 }
@@ -202,16 +194,14 @@ pub fn derive_bitfield_specifier(input: TokenStream) -> TokenStream {
 fn derive_specifier_impl(input: DeriveInput) -> Result<proc_macro2::TokenStream> {
     let name = &input.ident;
 
-    let variants = match &input.data {
-        Data::Enum(data) => &data.variants,
-        _ => {
-            return Err(Error::new_spanned(
-                &input,
-                "BitfieldSpecifier only supports enums",
-            ))
-        }
+    let Data::Enum(data) = &input.data else {
+        return Err(Error::new_spanned(
+            &input,
+            "BitfieldSpecifier only supports enums",
+        ));
     };
 
+    let variants = &data.variants;
     let variant_count = variants.len();
 
     // Check that variant count is a power of 2
@@ -226,14 +216,11 @@ fn derive_specifier_impl(input: DeriveInput) -> Result<proc_macro2::TokenStream>
     let bits = (variant_count as f64).log2() as usize;
 
     // Determine the bytes type
-    let bytes_ty: Type = if bits <= 8 {
-        parse_quote! { u8 }
-    } else if bits <= 16 {
-        parse_quote! { u16 }
-    } else if bits <= 32 {
-        parse_quote! { u32 }
-    } else {
-        parse_quote! { u64 }
+    let bytes_ty: Type = match bits {
+        0..=8 => parse_quote! { u8 },
+        9..=16 => parse_quote! { u16 },
+        17..=32 => parse_quote! { u32 },
+        _ => parse_quote! { u64 },
     };
 
     // Generate from_bytes match arms and discriminant checks
@@ -267,7 +254,7 @@ fn derive_specifier_impl(input: DeriveInput) -> Result<proc_macro2::TokenStream>
         _ => panic!("invalid discriminant"),
     });
 
-    let expanded = quote! {
+    Ok(quote! {
         impl ::bitfield::Specifier for #name {
             const BITS: usize = #bits;
             type Bytes = #name;
@@ -285,7 +272,5 @@ fn derive_specifier_impl(input: DeriveInput) -> Result<proc_macro2::TokenStream>
         }
 
         #(#discriminant_checks)*
-    };
-
-    Ok(expanded)
+    })
 }

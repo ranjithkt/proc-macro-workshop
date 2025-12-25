@@ -1,5 +1,5 @@
-error: expected `builder(each = "...")`
-  --> tests/08-unrecognized-attribute.rs:22:7
+error: Unknown field: `eac`. Did you mean `each`?
+  --> tests/08-unrecognized-attribute.rs:22:15
    |
 22 |     #[builder(eac = "arg")]
-   |       ^^^^^^^^^^^^^^^^^^^^
+   |               ^^^
