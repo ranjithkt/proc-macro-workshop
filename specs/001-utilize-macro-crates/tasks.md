@@ -138,7 +138,7 @@
 #### Builder Project (Activate Existing Dependency)
 
 - [ ] T050 [US3] Add `use heck::ToUpperCamelCase;` import in builder/src/lib.rs
-- [ ] T051 [US3] Update builder struct naming to use heck (optional - current format! is acceptable) in builder/src/lib.rs
+- [ ] T051 [US3] Verify builder struct naming uses heck for case normalization in builder/src/lib.rs
 - [ ] T052 [US3] Run `cd builder && cargo test` to verify builder project still passes
 
 #### Bitfield-Impl Project (Use New Dependency)

@@ -74,7 +74,7 @@ builder/
 └── src/lib.rs           # Refactor: utilize heck, add #[proc_macro_error]
 
 debug/
-├── Cargo.toml           # Add proc-macro-error2, heck
+├── Cargo.toml           # Add proc-macro-error2 (heck not needed - no case conversion)
 └── src/lib.rs           # Refactor: FromMeta for bound parsing, add #[proc_macro_error]
 
 seq/
@@ -87,7 +87,7 @@ sorted/
 
 bitfield/impl/
 ├── Cargo.toml           # Add proc-macro-error2, heck (darling already present)
-└── src/lib.rs           # Refactor: FromField for #[bits], add #[proc_macro_error]
+└── src/lib.rs           # Refactor: FromField for #[bits = N], add #[proc_macro_error]
 ```
 
 **Structure Decision**: Existing multi-crate workspace structure preserved. Changes are limited to Cargo.toml dependencies and lib.rs refactoring within each proc-macro crate.

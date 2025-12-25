@@ -77,16 +77,16 @@ As a proc macro developer, I want case conversion operations to use the heck cra
 
 #### Builder Project
 
-- **FR-001**: The builder project MUST use darling's `FromField` with `#[darling(map = "...")]` for type extraction helpers instead of custom `get_inner_type` functions where appropriate
+- **FR-001**: The builder project SHOULD evaluate darling's `#[darling(map = "...")]` for type extraction; current `get_inner_type` helper is acceptable if darling doesn't simplify
 - **FR-002**: The builder project MUST add proc-macro-error2 for cleaner error handling in the derive macro entry point
-- **FR-003**: The builder project MUST use heck for any identifier case conversions (e.g., builder struct naming)
+- **FR-003**: The builder project SHOULD use heck for identifier case conversions where normalization is needed (e.g., builder struct naming from non-PascalCase inputs)
 
 #### Debug Project
 
-- **FR-004**: The debug project MUST use darling's `SpannedValue<T>` for attribute values that need span information for error reporting
+- **FR-004**: The debug project SHOULD use darling's `SpannedValue<T>` for attribute values only if span information is needed for error reporting (current format parsing may not require it)
 - **FR-005**: The debug project MUST use darling's `FromMeta` for parsing the `#[debug(bound = "...")]` nested attribute instead of manual parsing
 - **FR-006**: The debug project MUST add proc-macro-error2 for improved error accumulation during bounds analysis
-- **FR-007**: The debug project MUST add heck as a dependency (currently missing) for any case-related operations
+- **FR-007**: The debug project SHOULD add heck only if case conversion is actively used (per research: no case conversion needed)
 
 #### Seq Project
 
@@ -123,10 +123,10 @@ As a proc macro developer, I want case conversion operations to use the heck cra
 - **SC-002**: Total logical statements in manual attribute parsing code reduced by at least 30% across all projects (measured by parsing-related function bodies, excluding whitespace/comments)
 - **SC-003**: All proc macro entry points use `#[proc_macro_error]` attribute from proc-macro-error2
 - **SC-004**: All manual `syn::Error::new(...).to_compile_error()` patterns replaced with proc-macro-error2 macros
-- **SC-005**: All case conversion operations use heck's trait methods instead of manual string formatting
+- **SC-005**: Case conversion operations in builder and bitfield-impl use heck's trait methods where applicable
 - **SC-006**: All existing tests continue to pass after the refactoring
 - **SC-007**: Error messages maintain semantic equivalence (same span location, same diagnostic meaning; exact wording may differ)
-- **SC-008**: No increase in compile time of more than 10% for the proc macro crates
+- **SC-008**: No significant increase in compile time for the proc macro crates (verified by ensuring no new heavy dependencies beyond darling/proc-macro-error2/heck)
 
 ## Scope Boundaries
 
