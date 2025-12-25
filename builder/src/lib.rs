@@ -113,37 +113,18 @@ pub fn derive(input: TokenStream) -> TokenStream {
     });
 
     let functions = fields.iter().map(|field| {
-        let field_name = field.ident.clone();
-        if is_ty_option(&field.ty) {
-            let inner_type = get_option_generic_type(&field.ty);
-
-            if let Some(inner_type) = inner_type {
-                let inner_field = Field {
-                    attrs: Vec::new(),
-                    vis: Visibility::Inherited,
-                    mutability: field.mutability.clone(),
-                    ident: field.ident.clone(),
-                    colon_token: field.colon_token,
-                    ty: inner_type.clone(),
-                };
-
-                quote! {
-                    pub fn #field_name(&mut self, #inner_field) -> &mut Self {
+        let field_name = &field.ident;
+        let field_type = &field.ty;
+        if let Some(inner_type) = get_option_generic_type(field_type) {
+            quote! {
+                    pub fn #field_name(&mut self, #field_name: #inner_type) -> &mut Self {
                         self.#field_name = Some(#field_name);
                         self
                     }
                 }
-            } else {
-                quote! {
-                    pub fn #field_name(&mut self, #field) -> &mut Self {
-                        self.#field_name = Some(#field_name);
-                        self
-                    }
-                }
-            }
         } else {
             quote! {
-                pub fn #field_name(&mut self, #field) -> &mut Self {
+                pub fn #field_name(&mut self, #field_name: #field_type) -> &mut Self {
                     self.#field_name = Some(#field_name);
                     self
                 }
@@ -153,7 +134,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
     let build_function = fields.iter().map(|field| {
         let field_name = field.ident.clone();
-        if is_ty_option(&field.ty) {
+        if get_option_generic_type(&field.ty).is_some() {
             quote! {
                 #field_name: self.#field_name.clone()
             }
