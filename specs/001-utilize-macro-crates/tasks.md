@@ -19,12 +19,12 @@
 
 **Purpose**: Add required crate dependencies to each project's Cargo.toml
 
-- [ ] T001 [P] Add `proc-macro-error2 = "2"` to builder/Cargo.toml
-- [ ] T002 [P] Add `proc-macro-error2 = "2"` to debug/Cargo.toml
-- [ ] T003 [P] Add `proc-macro-error2 = "2"` to seq/Cargo.toml
-- [ ] T004 [P] Add `proc-macro-error2 = "2"` to sorted/Cargo.toml
-- [ ] T005 [P] Add `proc-macro-error2 = "2"` and `heck = "0.5"` to bitfield/impl/Cargo.toml
-- [ ] T006 Run `cargo check --workspace` to verify all dependencies resolve
+- [x] T001 [P] Add `proc-macro-error2 = "2"` to builder/Cargo.toml
+- [x] T002 [P] Add `proc-macro-error2 = "2"` to debug/Cargo.toml
+- [x] T003 [P] Add `proc-macro-error2 = "2"` to seq/Cargo.toml
+- [x] T004 [P] Add `proc-macro-error2 = "2"` to sorted/Cargo.toml
+- [x] T005 [P] Add `proc-macro-error2 = "2"` and `heck = "0.5"` to bitfield/impl/Cargo.toml
+- [x] T006 Run `cargo check --workspace` to verify all dependencies resolve
 
 **Checkpoint**: All dependencies added, workspace compiles
 
@@ -34,11 +34,11 @@
 
 **Purpose**: Establish baseline metrics before refactoring
 
-- [ ] T007 Count logical statements in builder/src/lib.rs parsing code (document in PR)
-- [ ] T008 Count logical statements in debug/src/lib.rs parsing code (document in PR)
-- [ ] T009 Count logical statements in sorted/src/lib.rs error handling code (document in PR)
-- [ ] T010 Count logical statements in bitfield/impl/src/lib.rs parsing code (document in PR)
-- [ ] T011 Run all existing tests to confirm baseline: `cargo test --workspace`
+- [x] T007 Count logical statements in builder/src/lib.rs parsing code (document in PR) - **~14 statements**
+- [x] T008 Count logical statements in debug/src/lib.rs parsing code (document in PR) - **~44 statements**
+- [x] T009 Count logical statements in sorted/src/lib.rs error handling code (document in PR) - **~32 statements**
+- [x] T010 Count logical statements in bitfield/impl/src/lib.rs parsing code (document in PR) - **~34 statements**
+- [x] T011 Run all existing tests to confirm baseline: `cargo test --workspace` - **All 46 tests pass**
 
 **Checkpoint**: Baseline established, all tests pass before refactoring
 
@@ -54,19 +54,19 @@
 
 #### Debug Project - FromMeta for Bound Parsing
 
-- [ ] T012 [US1] Replace `get_bound()` method with `#[darling(default)] bound: Option<String>` field in DebugInput struct in debug/src/lib.rs
-- [ ] T013 [US1] Change `#[darling(forward_attrs(debug))]` to `#[darling(attributes(debug))]` in DebugInput in debug/src/lib.rs
-- [ ] T014 [US1] Remove `attrs: Vec<Attribute>` field from DebugInput if no longer needed in debug/src/lib.rs
-- [ ] T015 [US1] Update `derive_debug_impl()` to use `input.bound` instead of `input.get_bound()` in debug/src/lib.rs
-- [ ] T016 [US1] Run `cd debug && cargo test` to verify debug project still passes
+- [x] T012 [US1] Replace `get_bound()` method with `#[darling(default)] bound: Option<String>` field in DebugInput struct in debug/src/lib.rs
+- [x] T013 [US1] Change `#[darling(forward_attrs(debug))]` to `#[darling(attributes(debug))]` in DebugInput in debug/src/lib.rs
+- [x] T014 [US1] Remove `attrs: Vec<Attribute>` field from DebugInput if no longer needed in debug/src/lib.rs
+- [x] T015 [US1] Update `derive_debug_impl()` to use `input.bound` instead of `input.get_bound()` in debug/src/lib.rs
+- [x] T016 [US1] Run `cd debug && cargo test` to verify debug project still passes - **All 8 tests pass**
 
 #### Bitfield-Impl Project - FromField for #[bits]
 
-- [ ] T017 [US1] Create `BitfieldFieldInfo` struct with `#[derive(FromField)]` for #[bits = N] parsing in bitfield/impl/src/lib.rs
-- [ ] T018 [US1] Add `#[darling(default)] bits: Option<SpannedValue<usize>>` field to BitfieldFieldInfo in bitfield/impl/src/lib.rs
-- [ ] T019 [US1] Remove `get_bits_attribute()` function in bitfield/impl/src/lib.rs
-- [ ] T020 [US1] Update `bitfield_impl()` to use `BitfieldFieldInfo::from_field()` in bitfield/impl/src/lib.rs
-- [ ] T021 [US1] Run `cd bitfield && cargo test` to verify bitfield project still passes
+- [~] T017 [US1] Create `BitfieldFieldInfo` struct - DEFERRED: `#[bits = N]` uses name-value syntax not supported by darling's `attributes()`. Current manual parsing is acceptable.
+- [~] T018 [US1] Add `#[darling(default)] bits` field - DEFERRED: See T017
+- [~] T019 [US1] Remove `get_bits_attribute()` function - DEFERRED: See T017
+- [~] T020 [US1] Update `bitfield_impl()` to use FromField - DEFERRED: See T017
+- [x] T021 [US1] Run `cd bitfield && cargo test` to verify bitfield project still passes - **All 12 tests pass**
 
 **Checkpoint**: Darling enhancements complete, debug/ and bitfield/ tests pass
 

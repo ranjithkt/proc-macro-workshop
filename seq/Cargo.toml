@@ -19,3 +19,4 @@ trybuild = { version = "1.0.108", features = ["diff"] }
 syn = { version = "2", features = ["parsing", "proc-macro", "extra-traits"] }
 quote = "1"
 proc-macro2 = "1"
+proc-macro-error2 = "2"

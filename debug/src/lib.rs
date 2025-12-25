@@ -6,6 +6,7 @@ use syn::{
     parse_macro_input, parse_quote, Attribute, DeriveInput, GenericArgument, Ident, Lit, Meta,
     PathArguments, Type, TypePath, WherePredicate,
 };
+use proc_macro_error2::{abort, proc_macro_error};
 
 /// Field information parsed by darling
 #[derive(FromField)]
@@ -38,66 +39,32 @@ impl DebugField {
     }
 }
 
-/// Derive input parsed by darling (no attributes parsing at struct level)
+/// Derive input parsed by darling
 #[derive(FromDeriveInput)]
-#[darling(supports(struct_named), forward_attrs(debug))]
+#[darling(supports(struct_named), attributes(debug))]
 struct DebugInput {
     ident: Ident,
     generics: syn::Generics,
     data: Data<(), DebugField>,
-    attrs: Vec<Attribute>,
-}
-
-impl DebugInput {
-    /// Get the struct-level bound from #[debug(bound = "...")] attribute
-    fn get_bound(&self) -> Option<String> {
-        for attr in &self.attrs {
-            if !attr.path().is_ident("debug") {
-                continue;
-            }
-            // Handle #[debug(bound = "...")] format (MetaList)
-            let Meta::List(list) = &attr.meta else {
-                continue;
-            };
-            let Ok(nested) = list.parse_args_with(
-                syn::punctuated::Punctuated::<Meta, syn::Token![,]>::parse_terminated,
-            ) else {
-                continue;
-            };
-            for meta in nested {
-                let Meta::NameValue(nv) = &meta else {
-                    continue;
-                };
-                if !nv.path.is_ident("bound") {
-                    continue;
-                }
-                if let syn::Expr::Lit(syn::ExprLit {
-                    lit: Lit::Str(lit_str),
-                    ..
-                }) = &nv.value
-                {
-                    return Some(lit_str.value());
-                }
-            }
-        }
-        None
-    }
+    /// Struct-level bound from #[debug(bound = "...")] - parsed automatically by darling
+    #[darling(default)]
+    bound: Option<String>,
 }
 
 #[proc_macro_derive(CustomDebug, attributes(debug))]
+#[proc_macro_error]
 pub fn derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    match DebugInput::from_derive_input(&input) {
-        Ok(parsed) => derive_debug_impl(parsed).into(),
-        Err(e) => e.write_errors().into(),
-    }
+    let parsed = DebugInput::from_derive_input(&input)
+        .unwrap_or_else(|e| abort!(e.span(), "{}", e));
+    derive_debug_impl(parsed).into()
 }
 
 fn derive_debug_impl(input: DebugInput) -> proc_macro2::TokenStream {
     let name = &input.ident;
     let name_str = name.to_string();
-    let custom_bound = input.get_bound();
+    let custom_bound = input.bound.clone();
 
     let fields = input
         .data
