@@ -37,10 +37,7 @@ pub fn derive_validated(input: TokenStream) -> TokenStream {
                 );
             }
             Fields::Unit => {
-                abort!(
-                    input.ident,
-                    "unit structs have no fields to validate"
-                );
+                abort!(input.ident, "unit structs have no fields to validate");
             }
         },
         Data::Enum(_) => {
@@ -59,7 +56,8 @@ pub fn derive_validated(input: TokenStream) -> TokenStream {
         let field_name_str = field_name.to_string();
 
         // Get type as string for simple checking
-        let type_str = quote!(#field.ty).to_string().replace(' ', "");
+        let ty = &field.ty;
+        let type_str = quote!(#ty).to_string().replace(' ', "");
 
         eprintln!("│   {} : {}               │", field_name_str, type_str);
 
@@ -126,7 +124,8 @@ pub fn derive_strict_validated(input: TokenStream) -> TokenStream {
     for field in &fields.named {
         let field_name = field.ident.as_ref().unwrap();
         let field_name_str = field_name.to_string();
-        let type_str = quote!(#field.ty).to_string().replace(' ', "");
+        let ty = &field.ty;
+        let type_str = quote!(#ty).to_string().replace(' ', "");
 
         if field_name_str == "id" && type_str != "u64" {
             abort!(
@@ -146,4 +145,3 @@ pub fn derive_strict_validated(input: TokenStream) -> TokenStream {
     }
     .into()
 }
-
