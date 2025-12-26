@@ -282,3 +282,11 @@ Recommended order for one developer:
 - Commit after each completed task or logical group
 - Semantic equivalence for error messages means spans must match, wording may differ
 
+### Architecture Decisions
+
+**Keep `#[proc_macro_error]` on all entry points** (even without `abort!`/`emit_error!`):
+- Provides panic-to-compile-error conversion
+- Creates consistent pattern across all 7 entry points
+- Negligible overhead (~1ms compile time, no binary size impact)
+- See research.md Section 2 for detailed rationale
+
