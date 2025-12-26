@@ -1,6 +1,12 @@
 # Sorted Project: Before/After Patterns
 
-## Pattern 1: sorted Entry Point
+> ⚠️ **Implementation Note (2025-12-25)**: The patterns below (Patterns 1-4) were **not implemented** due to a semantic limitation discovered during testing. The `emit_error!` approach causes secondary compiler errors to appear because errors are output AFTER the item is processed. The current implementation only adds `#[proc_macro_error]` to entry points while preserving the original `to_compile_error()` pattern. See [research.md](../research.md#⚠️-important-limitations-error-output-order) for details.
+
+---
+
+## Pattern 1: sorted Entry Point (NOT IMPLEMENTED)
+
+### Original Proposal
 
 ### Before (~15 lines)
 ```rust
@@ -210,3 +216,42 @@ proc-macro2 = "1"
 proc-macro-error2 = "2"
 ```
 
+---
+
+## Actual Implementation (What Was Done)
+
+Due to the semantic limitation, only the `#[proc_macro_error]` attribute was added to entry points:
+
+```rust
+use proc_macro_error2::proc_macro_error;
+
+#[proc_macro_attribute]
+#[proc_macro_error]  // Added - provides panic safety
+pub fn sorted(args: TokenStream, input: TokenStream) -> TokenStream {
+    let _ = args;
+    let item = parse_macro_input!(input as Item);
+
+    match sorted_impl(&item) {
+        Ok(tokens) => tokens.into(),
+        Err(e) => {
+            // PRESERVED: to_compile_error() pattern required for correct error ordering
+            let item_tokens = quote! { #item };
+            let error_tokens = e.to_compile_error();
+            quote! {
+                #error_tokens
+                #item_tokens
+            }
+            .into()
+        }
+    }
+}
+
+#[proc_macro_attribute]
+#[proc_macro_error]  // Added - provides panic safety
+pub fn check(args: TokenStream, input: TokenStream) -> TokenStream {
+    // ... same pattern preserved
+}
+```
+
+**Lines saved**: 0 (only attribute added)  
+**Benefit**: Consistent pattern across all macros; panic safety; future extensibility

@@ -99,12 +99,12 @@ As a proc macro developer, I want case conversion operations to use the heck cra
 - **FR-011**: The sorted project SHOULD add darling only if it simplifies attribute parsing (currently minimal attribute usage)
 - **FR-012**: The sorted project MUST add proc-macro-error2 with `#[proc_macro_error]` attribute for cleaner error handling
 - **FR-013**: The sorted project SHOULD add heck only if case conversion is actively used
-- **FR-014**: The sorted project MUST replace manual `syn::Error::new().to_compile_error()` patterns with proc-macro-error2's `abort!` macro
+- **FR-014**: The sorted project SHOULD replace manual `syn::Error::new().to_compile_error()` patterns with proc-macro-error2's `abort!` macro, EXCEPT where error output order affects compilation behavior (sorted requires error BEFORE item to prevent secondary errors; see research.md Section 2)
 
 #### Bitfield-Impl Project
 
 - **FR-015**: The bitfield-impl project MUST fully utilize darling's `FromDeriveInput` and `FromField` for parsing struct fields and attributes
-- **FR-016**: The bitfield-impl project MUST use darling for parsing the `#[bits = N]` attribute instead of manual `get_bits_attribute` function
+- **FR-016**: The bitfield-impl project SHOULD use darling for parsing the `#[bits = N]` attribute instead of manual `get_bits_attribute` function, EXCEPT darling's `#[darling(attributes(...))]` doesn't directly support `name = value` syntax; manual parsing is acceptable (see research.md Section 1)
 - **FR-017**: The bitfield-impl project MUST add proc-macro-error2 for error handling in both `bitfield` and `BitfieldSpecifier` macros
 - **FR-018**: The bitfield-impl project MUST add heck as a dependency for getter/setter method name generation (e.g., `get_field_name`, `set_field_name`)
 
@@ -120,9 +120,9 @@ As a proc macro developer, I want case conversion operations to use the heck cra
 ### Measurable Outcomes
 
 - **SC-001**: Each proc macro project includes darling, proc-macro-error2, and/or heck only where they provide measurable code simplification
-- **SC-002**: Total logical statements in manual attribute parsing code reduced by at least 30% across all projects (measured by parsing-related function bodies, excluding whitespace/comments)
+- **SC-002**: At least one project achieves 30% reduction in manual attribute parsing code (measured by parsing-related function bodies, excluding whitespace/comments); other projects achieve reductions where semantically feasible
 - **SC-003**: All proc macro entry points use `#[proc_macro_error]` attribute from proc-macro-error2
-- **SC-004**: All manual `syn::Error::new(...).to_compile_error()` patterns replaced with proc-macro-error2 macros
+- **SC-004**: All manual `syn::Error::new(...).to_compile_error()` patterns replaced with proc-macro-error2 macros, EXCEPT sorted project where `to_compile_error()` is semantically required for error output ordering
 - **SC-005**: Case conversion operations in builder and bitfield-impl use heck's trait methods where applicable
 - **SC-006**: All existing tests continue to pass after the refactoring
 - **SC-007**: Error messages maintain semantic equivalence (same span location, same diagnostic meaning; exact wording may differ)

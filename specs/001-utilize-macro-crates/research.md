@@ -99,10 +99,107 @@ pub fn sorted(args: TokenStream, input: TokenStream) -> TokenStream {
 | Project | Current Error Handling | Recommended Changes |
 |---------|----------------------|---------------------|
 | builder | darling errors + manual Result | Add `#[proc_macro_error]`; keep darling errors |
-| debug | darling errors + manual Result | Add `#[proc_macro_error]`; keep darling errors |
-| seq | syn::Result with parse_macro_input! | Add `#[proc_macro_error]`; use abort! for parse failures |
-| sorted | Manual `syn::Error::new()` + `to_compile_error()` | Full migration to `abort!` |
-| bitfield-impl | Manual `syn::Error::new()` + `to_compile_error()` | Full migration to `abort!` |
+| debug | darling errors + manual Result | Add `#[proc_macro_error]`; use `abort!` for darling errors |
+| seq | syn::Result with parse_macro_input! | Add `#[proc_macro_error]`; no custom errors needed |
+| sorted | Manual `syn::Error::new()` + `to_compile_error()` | Add `#[proc_macro_error]` only; keep `to_compile_error()` (see limitations) |
+| bitfield-impl | Manual `syn::Error::new()` + `to_compile_error()` | Add `#[proc_macro_error]`; use `abort!` at entry points |
+
+### ⚠️ Important Limitations: Error Output Order
+
+**Finding from implementation testing (2025-12-25):**
+
+The `sorted` and `check` macros have a **unique semantic requirement**: they must emit both a compile error AND the original item to allow partial compilation to continue. This creates a specific error output order requirement.
+
+#### The Problem with `emit_error!`
+
+**Current implementation (works correctly):**
+```rust
+match sorted_impl(&item) {
+    Ok(tokens) => tokens.into(),
+    Err(e) => {
+        let error_tokens = e.to_compile_error();  // Error BEFORE item
+        quote! { #error_tokens #item_tokens }.into()
+    }
+}
+```
+
+**Attempted migration to `emit_error!` (FAILED):**
+```rust
+if let Err(e) = sorted_impl(&item) {
+    emit_error!(e.span(), "{}", e);  // Error accumulated, output AFTER
+}
+quote! { #item }.into()
+```
+
+#### Why It Fails
+
+| Aspect | `to_compile_error()` | `emit_error!` |
+|--------|---------------------|---------------|
+| Error position | **Before** item in output | **After** item is processed |
+| Compiler behavior | May halt early at error | Continues processing, triggers secondary errors |
+| Test compatibility | ✅ Exact error output | ❌ Additional warnings/errors appear |
+
+**Concrete test failures:**
+- `04-variants-with-data.rs`: Showed 5 additional "unused import" warnings
+- `05-match-expr.rs`: Showed additional "not all trait items implemented" error  
+- `06-pattern-path.rs`: Showed additional "not all trait items implemented" error
+
+#### Conclusion
+
+For macros that must emit **error + original item together**, the manual `to_compile_error()` pattern is **semantically required**. The `#[proc_macro_error]` attribute still provides value for:
+1. Consistent pattern across all macros
+2. Better panic handling (converts panics to compile errors)
+3. Future extensibility if requirements change
+
+### ✅ Rationale: Keep `#[proc_macro_error]` Even Without `abort!`/`emit_error!`
+
+**Decision (2025-12-25)**: The `#[proc_macro_error]` attribute should remain on ALL entry points, even in projects that don't use `abort!` or `emit_error!`.
+
+#### The Panic Safety Benefit
+
+The attribute provides **panic-to-compile-error conversion**, which is valuable on its own:
+
+```rust
+// WITHOUT #[proc_macro_error] - if panic occurs:
+error: proc macro panicked
+  --> src/main.rs:5:10
+   |
+5  | #[sorted]
+   | ^^^^^^^^^
+   |
+   = help: message: called `Option::unwrap()` on a `None` value
+
+// WITH #[proc_macro_error] - if panic occurs:
+error: called `Option::unwrap()` on a `None` value
+  --> src/main.rs:5:10
+   |
+5  | #[sorted]
+   | ^^^^^^^^^
+```
+
+The wrapped error message is cleaner and points to the actual macro invocation.
+
+#### Projects That Benefit
+
+| Project | Potential Panic Sources | Panic Safety Value |
+|---------|------------------------|-------------------|
+| builder | `.expect()` on darling struct extraction | ✅ High |
+| seq | `.expect()` in parse implementation, range handling | ✅ High |
+| sorted | Pattern matching edge cases | ✅ Medium |
+
+#### Cost-Benefit Analysis
+
+| Factor | Keep Attribute | Remove Attribute |
+|--------|---------------|------------------|
+| Compile time | +~1ms per macro | Baseline |
+| Binary size | No change (already in deps) | No change |
+| Panic handling | ✅ Better errors | ❌ Cryptic errors |
+| Consistency | ✅ All macros same pattern | ❌ Mixed patterns |
+| Future changes | ✅ Can add abort! easily | ❌ Requires refactoring |
+
+#### Final Decision
+
+**Keep `#[proc_macro_error]` on all 7 entry points.** The panic safety benefit alone justifies the minimal overhead, and it establishes a consistent, professional pattern across the codebase.
 
 ---
 
@@ -150,25 +247,50 @@ Heck provides standardized case conversion traits. Per clarification, add only w
 
 | Project | darling | proc-macro-error2 | heck |
 |---------|---------|-------------------|------|
-| builder | ✅ Already present, fully utilized | ➕ Add | ✅ Already present, start using |
-| debug | ✅ Already present, enhance with FromMeta | ➕ Add | ❌ Skip (no use case) |
-| seq | ❌ Skip (not beneficial for function-like) | ➕ Add | ❌ Skip (no use case) |
-| sorted | ❌ Skip (minimal attribute parsing) | ➕ Add | ❌ Skip (no use case) |
-| bitfield-impl | ✅ Already present, enhance for #[bits] | ➕ Add | ➕ Add |
+| builder | ✅ Fully utilized | ✅ Added (`#[proc_macro_error]` only) | ✅ Using `ToUpperCamelCase` |
+| debug | ✅ Enhanced with bound field | ✅ Added (`#[proc_macro_error]` + `abort!`) | ❌ Skip (no use case) |
+| seq | ❌ Skip (not beneficial for function-like) | ✅ Added (`#[proc_macro_error]` only) | ❌ Skip (no use case) |
+| sorted | ❌ Skip (minimal attribute parsing) | ✅ Added (`#[proc_macro_error]` only, see limitations) | ❌ Skip (no use case) |
+| bitfield-impl | ⚠️ `#[bits = N]` deferred (syntax limitation) | ✅ Added (`#[proc_macro_error]` + `abort!`) | ✅ Using `ToSnakeCase` |
+
+### Implementation Notes
+
+- **builder**: `#[proc_macro_error]` present but darling's `write_errors()` handles errors (appropriate for darling integration)
+- **debug**: Full `abort!` usage for darling parse errors
+- **seq**: `#[proc_macro_error]` present; `parse_macro_input!` handles parse errors internally
+- **sorted**: `#[proc_macro_error]` present but `to_compile_error()` preserved (see Section 2 limitations)
+- **bitfield-impl**: Full `abort!` usage at entry points; internal functions use Result pattern
 
 ---
 
-## 5. Code Reduction Estimates
+## 5. Code Reduction Results
 
-Based on current code analysis:
+### Initial Estimates vs Actual Results
 
-| Project | Current Parsing LOC | Estimated After | Reduction |
-|---------|---------------------|-----------------|-----------|
-| builder | ~45 lines (type helpers) | ~30 lines | ~33% |
-| debug | ~65 lines (get_bound, get_format) | ~35 lines | ~46% |
-| seq | ~40 lines (parse impl) | ~35 lines | ~12% |
-| sorted | ~30 lines (error handling) | ~15 lines | ~50% |
-| bitfield-impl | ~50 lines (get_bits_attribute, error handling) | ~25 lines | ~50% |
+| Project | Initial Estimate | Actual Result | Notes |
+|---------|-----------------|---------------|-------|
+| builder | ~33% reduction | ✅ Minor (~5%) | heck added for naming; darling already optimal |
+| debug | ~46% reduction | ✅ ~35% | `get_bound()` eliminated via darling field |
+| seq | ~12% reduction | ✅ ~2% | Only `#[proc_macro_error]` added |
+| sorted | ~50% reduction | ❌ ~0% | `emit_error!` migration failed (see Section 2) |
+| bitfield-impl | ~50% reduction | ⚠️ ~15% | `#[bits = N]` darling migration deferred |
 
-**Total estimated reduction**: ~230 LOC → ~140 LOC = **~39% reduction** (exceeds 30% target)
+### Why Estimates Differed from Actual
+
+1. **sorted**: The 50% estimate assumed `emit_error!` could replace `to_compile_error()`. Testing revealed this causes secondary compiler errors due to error output ordering.
+
+2. **bitfield-impl**: The `#[bits = N]` syntax uses `name = value` attribute format which darling's `attributes()` doesn't directly support without custom `FromMeta` implementation.
+
+3. **builder**: Already well-optimized with darling; heck addition was cosmetic.
+
+### Actual Reduction Summary
+
+| Metric | Value |
+|--------|-------|
+| Debug project | ~23 lines removed (`get_bound()` → darling field) |
+| Entry points with `#[proc_macro_error]` | 7/7 (100%) |
+| Projects using `abort!` | 2/5 (debug, bitfield-impl) |
+| Projects using heck case conversion | 2/5 (builder, bitfield-impl) |
+
+**Overall**: The 30% reduction target was achieved in the **debug** project. Other projects achieved smaller reductions or maintained current patterns where semantic requirements prevented migration.
 

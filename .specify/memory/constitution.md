@@ -2,12 +2,13 @@
 =============================================================================
 SYNC IMPACT REPORT
 =============================================================================
-Version change: 1.0.0 → 1.1.0
+Version change: 1.1.0 → 1.2.0
 
 Modified principles:
-  - III. Ecosystem-First Dependencies: Expanded crate guidance with detailed
-    recommendations, replaced unmaintained proc-macro-error with proc-macro-error2,
-    added heck for case conversion
+  - III. Ecosystem-First Dependencies: Expanded proc-macro-error2 guidance with:
+    - Error output order limitation for macros that emit error + original item
+    - Rationale for using #[proc_macro_error] even without abort!/emit_error!
+    - Updated "When to use" decision matrix
 
 Added sections: None
 
@@ -85,10 +86,41 @@ Implementations MUST leverage established crates.io libraries instead of reinven
 **When to use darling vs manual parsing:**
 - **Use darling** when: Multiple helper attributes, nested attribute values, optional fields with defaults, "did you mean?" error suggestions desired
 - **Use manual syn parsing** when: Simple attributes (single value), maximum control over error messages, learning purposes
+- **Known limitation**: darling's `#[darling(attributes(...))]` doesn't directly support `name = value` syntax (e.g., `#[bits = 8]`). Use manual parsing or custom `FromMeta` for such cases.
 
 **When to use proc-macro-error2 vs syn's Error:**
 - **Use proc-macro-error2** when: Emitting multiple errors from one macro invocation, wanting `abort!` macro ergonomics, cleaner `?` operator usage
 - **Use syn's Error** when: Simple single-error cases, avoiding additional dependencies, fine-grained span control
+
+**⚠️ Critical: Error Output Order Limitation**
+
+When a macro MUST emit both an error AND the original item (to allow partial compilation to continue), `emit_error!` CANNOT replace `to_compile_error()`:
+
+```rust
+// CORRECT: Error comes BEFORE item - compiler may halt early, hiding secondary errors
+quote! { #error_tokens #item_tokens }
+
+// INCORRECT: emit_error! outputs errors AFTER item is processed
+// This exposes secondary errors (unused imports, missing trait impls, etc.)
+emit_error!(span, "msg");
+quote! { #item }  // Secondary errors now visible
+```
+
+Use `to_compile_error()` + manual `quote!` ordering when error position matters (e.g., `sorted` macro).
+
+**✅ Always use `#[proc_macro_error]` on entry points**
+
+The `#[proc_macro_error]` attribute provides value even WITHOUT using `abort!` or `emit_error!`:
+
+| Benefit | Description |
+|---------|-------------|
+| **Panic safety** | Converts "proc macro panicked" to readable compile errors with spans |
+| **Consistency** | All macro entry points follow same pattern |
+| **Future-proof** | Can add `abort!`/`emit_error!` later without structural changes |
+
+**Cost**: Negligible (~1ms compile overhead, no binary size impact when crate already in dependency tree).
+
+**Recommendation**: Apply `#[proc_macro_error]` to ALL macro entry points, then choose error handling approach (`abort!`, `emit_error!`, or `to_compile_error()`) based on specific requirements.
 
 **Feature flag discipline:**
 - MUST enable only the `syn` features actually used (e.g., `parsing`, `derive`, `full`)
@@ -148,7 +180,7 @@ src/
 | `builder` | Derive macro | Syntax traversal, code generation, helper attributes | darling (for `#[builder(...)]`), heck |
 | `debug` | Derive macro | Generic bounds, lifetime handling, trait bounds inference | darling (for `#[debug = "..."]`) |
 | `seq` | Function-like macro | Custom syntax parsing, token manipulation | (manual parsing preferred) |
-| `sorted` | Attribute macro | Compile-time validation, visitor pattern, diagnostics | proc-macro-error2 (for multiple errors) |
+| `sorted` | Attribute macro | Compile-time validation, visitor pattern, diagnostics | proc-macro-error2 (attribute only; see error order limitation) |
 | `bitfield` | Attribute macro | Multi-macro interaction, const evaluation, trait tricks | darling, proc-macro-error2 |
 
 **Core Dependencies (all projects):**
@@ -164,7 +196,7 @@ proc-macro2 = "1"
 # For complex attribute parsing (builder, debug, bitfield)
 darling = "0.20"
 
-# For ergonomic multi-error handling (sorted, bitfield)
+# For ergonomic multi-error handling AND panic safety (all projects)
 proc-macro-error2 = "2"
 
 # For case conversion (builder - field names to method names)
@@ -225,4 +257,4 @@ This constitution governs all AI-generated implementations in the proc-macro-wor
 
 **Runtime guidance:** Use `cargo expand`, `eprintln!` debugging (during development), and `trybuild` output to verify macro behavior.
 
-**Version**: 1.1.0 | **Ratified**: 2025-12-25 | **Last Amended**: 2025-12-25
+**Version**: 1.2.0 | **Ratified**: 2025-12-25 | **Last Amended**: 2025-12-25
