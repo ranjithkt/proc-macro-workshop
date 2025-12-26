@@ -5,6 +5,14 @@ edition = "2021"
 publish = false
 
 [workspace]
+members = [
+    "docs/proc_macro_tutorial/examples/01_token_debug",
+    "docs/proc_macro_tutorial/examples/02_parse_struct",
+    "docs/proc_macro_tutorial/examples/03_generate_impl",
+    "docs/proc_macro_tutorial/examples/04_darling_attrs",
+    "docs/proc_macro_tutorial/examples/05_case_convert",
+    "docs/proc_macro_tutorial/examples/06_error_handling",
+]
 
 [[bin]]
 name = "workshop"

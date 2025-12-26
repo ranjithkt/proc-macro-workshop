@@ -244,10 +244,10 @@ This ensures consistent naming regardless of how the user writes their struct na
 
 ## Try It Yourself
 
-The example in [`examples/05-case-convert/`](./examples/05-case-convert/) demonstrates case conversion:
+The example in [`examples/05_case_convert/`](./examples/05_case_convert/) demonstrates case conversion:
 
 ```bash
-cd docs/proc-macro-tutorial/examples/05-case-convert
+cd docs/proc_macro_tutorial/examples/05_case_convert
 cargo run --example demo 2>&1
 ```
 

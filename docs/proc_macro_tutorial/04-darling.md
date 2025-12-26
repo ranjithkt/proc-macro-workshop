@@ -352,10 +352,10 @@ Compare this to the 100+ lines of manual parsing it replaces!
 
 ## Try It Yourself
 
-The example in [`examples/04-darling-attrs/`](./examples/04-darling-attrs/) shows before/after:
+The example in [`examples/04_darling_attrs/`](./examples/04_darling_attrs/) shows before/after:
 
 ```bash
-cd docs/proc-macro-tutorial/examples/04-darling-attrs
+cd docs/proc_macro_tutorial/examples/04_darling_attrs
 cargo run --example demo 2>&1
 ```
 

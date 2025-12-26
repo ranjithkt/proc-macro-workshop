@@ -257,10 +257,10 @@ Notice how `->` is two separate `Punct` tokens! The first has `spacing: Joint` (
 
 ## Try It Yourself
 
-The example in [`examples/01-token-debug/`](./examples/01-token-debug/) implements the token inspector. Try it:
+The example in [`examples/01_token_debug/`](./examples/01_token_debug/) implements the token inspector. Try it:
 
 ```bash
-cd docs/proc-macro-tutorial/examples/01-token-debug
+cd docs/proc_macro_tutorial/examples/01_token_debug
 cargo run --example demo 2>&1
 ```
 

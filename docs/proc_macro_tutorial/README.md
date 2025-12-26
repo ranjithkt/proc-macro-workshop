@@ -67,7 +67,7 @@ rustup install nightly
 
 ```bash
 # Navigate to an example
-cd docs/proc-macro-tutorial/examples/02-parse-struct
+cd docs/proc_macro_tutorial/examples/02_parse_struct
 
 # See the generated code
 cargo +nightly expand

@@ -339,10 +339,10 @@ syn = { version = "2", features = ["derive", "parsing", "full"] }
 
 ## Try It Yourself
 
-The example in [`examples/02-parse-struct/`](./examples/02-parse-struct/) shows field parsing:
+The example in [`examples/02_parse_struct/`](./examples/02_parse_struct/) shows field parsing:
 
 ```bash
-cd docs/proc-macro-tutorial/examples/02-parse-struct
+cd docs/proc_macro_tutorial/examples/02_parse_struct
 cargo run --example demo 2>&1
 ```
 

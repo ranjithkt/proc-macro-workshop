@@ -371,10 +371,10 @@ impl std::fmt::Debug for User {
 
 ## Try It Yourself
 
-The example in [`examples/03-generate-impl/`](./examples/03-generate-impl/) shows code generation:
+The example in [`examples/03_generate_impl/`](./examples/03_generate_impl/) shows code generation:
 
 ```bash
-cd docs/proc-macro-tutorial/examples/03-generate-impl
+cd docs/proc_macro_tutorial/examples/03_generate_impl
 cargo run --example demo 2>&1
 
 # See the generated code with cargo-expand:

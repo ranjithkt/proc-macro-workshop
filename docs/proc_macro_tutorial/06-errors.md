@@ -345,10 +345,10 @@ error: field `config` cannot be optional
 
 ## Try It Yourself
 
-The example in [`examples/06-error-handling/`](./examples/06-error-handling/) shows error patterns:
+The example in [`examples/06_error_handling/`](./examples/06_error_handling/) shows error patterns:
 
 ```bash
-cd docs/proc-macro-tutorial/examples/06-error-handling
+cd docs/proc_macro_tutorial/examples/06_error_handling
 cargo run --example demo 2>&1
 ```
 

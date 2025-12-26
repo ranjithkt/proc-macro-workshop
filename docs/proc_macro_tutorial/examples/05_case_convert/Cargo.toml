@@ -1,9 +1,7 @@
 [package]
-name = "generate-impl"
+name = "case_convert"
 version = "0.1.0"
 edition = "2021"
-
-[workspace]
 
 [lib]
 proc-macro = true
@@ -12,11 +10,11 @@ proc-macro = true
 syn = { version = "2", features = ["derive", "parsing"] }
 quote = "1"
 proc-macro2 = "1"
+heck = "0.5"
 
 [[example]]
 name = "demo"
 path = "examples/demo.rs"
 
 [dev-dependencies]
-generate-impl = { path = "." }
-
+case_convert = { path = "." }
