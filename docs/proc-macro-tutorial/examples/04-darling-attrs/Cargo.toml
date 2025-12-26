@@ -1,0 +1,23 @@
+[package]
+name = "darling-attrs"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["derive", "parsing"] }
+quote = "1"
+proc-macro2 = "1"
+darling = "0.20"
+
+[[example]]
+name = "demo"
+path = "examples/demo.rs"
+
+[dev-dependencies]
+darling-attrs = { path = "." }
+

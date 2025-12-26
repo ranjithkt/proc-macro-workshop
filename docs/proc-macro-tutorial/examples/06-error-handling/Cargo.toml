@@ -1,0 +1,23 @@
+[package]
+name = "error-handling"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["derive", "parsing"] }
+quote = "1"
+proc-macro2 = "1"
+proc-macro-error2 = "2"
+
+[[example]]
+name = "demo"
+path = "examples/demo.rs"
+
+[dev-dependencies]
+error-handling = { path = "." }
+

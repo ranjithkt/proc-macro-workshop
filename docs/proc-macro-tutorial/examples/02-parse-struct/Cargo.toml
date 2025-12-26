@@ -1,0 +1,22 @@
+[package]
+name = "parse-struct"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["derive", "parsing", "extra-traits"] }
+quote = "1"
+proc-macro2 = "1"
+
+[[example]]
+name = "demo"
+path = "examples/demo.rs"
+
+[dev-dependencies]
+parse-struct = { path = "." }
+

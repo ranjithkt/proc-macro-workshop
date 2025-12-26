@@ -42,13 +42,13 @@ docs/proc-macro-tutorial/
 
 **Purpose**: Create documentation directory and example project scaffolding
 
-- [ ] T001 Create documentation directory structure at `docs/proc-macro-tutorial/`
-- [ ] T002 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/01-token-debug/` with Cargo.toml
-- [ ] T003 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/02-parse-struct/` with Cargo.toml
-- [ ] T004 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/03-generate-impl/` with Cargo.toml
-- [ ] T005 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/04-darling-attrs/` with Cargo.toml
-- [ ] T006 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/05-case-convert/` with Cargo.toml
-- [ ] T007 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/06-error-handling/` with Cargo.toml
+- [x] T001 Create documentation directory structure at `docs/proc-macro-tutorial/`
+- [x] T002 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/01-token-debug/` with Cargo.toml
+- [x] T003 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/02-parse-struct/` with Cargo.toml
+- [x] T004 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/03-generate-impl/` with Cargo.toml
+- [x] T005 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/04-darling-attrs/` with Cargo.toml
+- [x] T006 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/05-case-convert/` with Cargo.toml
+- [x] T007 [P] Create example project scaffold `docs/proc-macro-tutorial/examples/06-error-handling/` with Cargo.toml
 
 **Checkpoint**: Directory structure ready for content
 
@@ -58,10 +58,10 @@ docs/proc-macro-tutorial/
 
 **Purpose**: Create the tutorial index and establish common elements
 
-- [ ] T008 Write tutorial index with chapter links in `docs/proc-macro-tutorial/README.md`
-- [ ] T009 Add "The Crate Ecosystem" overview table (7 crates) to `docs/proc-macro-tutorial/README.md`
-- [ ] T010 Add "How to Read This Tutorial" section to `docs/proc-macro-tutorial/README.md`
-- [ ] T011 Add "Running the Examples" instructions to `docs/proc-macro-tutorial/README.md`
+- [x] T008 Write tutorial index with chapter links in `docs/proc-macro-tutorial/README.md`
+- [x] T009 Add "The Crate Ecosystem" overview table (7 crates) to `docs/proc-macro-tutorial/README.md`
+- [x] T010 Add "How to Read This Tutorial" section to `docs/proc-macro-tutorial/README.md`
+- [x] T011 Add "Running the Examples" instructions to `docs/proc-macro-tutorial/README.md`
 
 **Checkpoint**: Index complete - chapter writing can begin
 
@@ -75,18 +75,18 @@ docs/proc-macro-tutorial/
 
 ### Chapter Content
 
-- [ ] T012 [US1] Write "What You'll Learn" section in `docs/proc-macro-tutorial/01-tokens.md`
-- [ ] T013 [US1] Write "Macros See Tokens, Not Text" introduction in `docs/proc-macro-tutorial/01-tokens.md`
-- [ ] T014 [US1] Write TokenStream and TokenTree explanation in `docs/proc-macro-tutorial/01-tokens.md`
-- [ ] T015 [US1] Create TokenStream structure Mermaid diagram (FR-011) in `docs/proc-macro-tutorial/01-tokens.md`
-- [ ] T016 [US1] Write "Why proc-macro2 Exists" section in `docs/proc-macro-tutorial/01-tokens.md`
-- [ ] T017 [US1] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/01-tokens.md`
+- [x] T012 [US1] Write "What You'll Learn" section in `docs/proc-macro-tutorial/01-tokens.md`
+- [x] T013 [US1] Write "Macros See Tokens, Not Text" introduction in `docs/proc-macro-tutorial/01-tokens.md`
+- [x] T014 [US1] Write TokenStream and TokenTree explanation in `docs/proc-macro-tutorial/01-tokens.md`
+- [x] T015 [US1] Create TokenStream structure Mermaid diagram (FR-011) in `docs/proc-macro-tutorial/01-tokens.md`
+- [x] T016 [US1] Write "Why proc-macro2 Exists" section in `docs/proc-macro-tutorial/01-tokens.md`
+- [x] T017 [US1] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/01-tokens.md`
 
 ### Example Code
 
-- [ ] T018 [US1] Implement token debug macro in `docs/proc-macro-tutorial/examples/01-token-debug/src/lib.rs`
-- [ ] T019 [US1] Add usage example with eprintln output in `docs/proc-macro-tutorial/examples/01-token-debug/examples/demo.rs`
-- [ ] T020 [US1] Verify example compiles: `cd docs/proc-macro-tutorial/examples/01-token-debug && cargo check`
+- [x] T018 [US1] Implement token debug macro in `docs/proc-macro-tutorial/examples/01-token-debug/src/lib.rs`
+- [x] T019 [US1] Add usage example with eprintln output in `docs/proc-macro-tutorial/examples/01-token-debug/examples/demo.rs`
+- [x] T020 [US1] Verify example compiles: `cd docs/proc-macro-tutorial/examples/01-token-debug && cargo check`
 
 **Checkpoint**: Chapter 1 complete and testable independently
 
@@ -100,20 +100,20 @@ docs/proc-macro-tutorial/
 
 ### Chapter Content
 
-- [ ] T021 [US2] Write "What You'll Learn" section in `docs/proc-macro-tutorial/02-syn.md`
-- [ ] T022 [US2] Write "Tokens Are Too Low-Level" problem statement in `docs/proc-macro-tutorial/02-syn.md`
-- [ ] T023 [US2] Write DeriveInput explanation with code examples in `docs/proc-macro-tutorial/02-syn.md`
-- [ ] T024 [US2] Write Data enum and Fields explanation in `docs/proc-macro-tutorial/02-syn.md`
-- [ ] T025 [US2] Create syn type hierarchy Mermaid diagram (FR-012) in `docs/proc-macro-tutorial/02-syn.md`
-- [ ] T026 [US2] Write attribute parsing section in `docs/proc-macro-tutorial/02-syn.md`
-- [ ] T027 [US2] Write feature flags guidance in `docs/proc-macro-tutorial/02-syn.md`
-- [ ] T028 [US2] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T021 [US2] Write "What You'll Learn" section in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T022 [US2] Write "Tokens Are Too Low-Level" problem statement in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T023 [US2] Write DeriveInput explanation with code examples in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T024 [US2] Write Data enum and Fields explanation in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T025 [US2] Create syn type hierarchy Mermaid diagram (FR-012) in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T026 [US2] Write attribute parsing section in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T027 [US2] Write feature flags guidance in `docs/proc-macro-tutorial/02-syn.md`
+- [x] T028 [US2] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/02-syn.md`
 
 ### Example Code
 
-- [ ] T029 [US2] Implement struct parser macro in `docs/proc-macro-tutorial/examples/02-parse-struct/src/lib.rs`
-- [ ] T030 [US2] Add usage example with eprintln output in `docs/proc-macro-tutorial/examples/02-parse-struct/examples/demo.rs`
-- [ ] T031 [US2] Verify example compiles: `cd docs/proc-macro-tutorial/examples/02-parse-struct && cargo check`
+- [x] T029 [US2] Implement struct parser macro in `docs/proc-macro-tutorial/examples/02-parse-struct/src/lib.rs`
+- [x] T030 [US2] Add usage example with eprintln output in `docs/proc-macro-tutorial/examples/02-parse-struct/examples/demo.rs`
+- [x] T031 [US2] Verify example compiles: `cd docs/proc-macro-tutorial/examples/02-parse-struct && cargo check`
 
 **Checkpoint**: Chapter 2 complete and testable independently
 
@@ -127,20 +127,20 @@ docs/proc-macro-tutorial/
 
 ### Chapter Content
 
-- [ ] T032 [US3] Write "What You'll Learn" section in `docs/proc-macro-tutorial/03-quote.md`
-- [ ] T033 [US3] Write "Building TokenStreams Manually" problem statement in `docs/proc-macro-tutorial/03-quote.md`
-- [ ] T034 [US3] Write basic quote! usage with examples in `docs/proc-macro-tutorial/03-quote.md`
-- [ ] T035 [US3] Write variable interpolation (#var) explanation in `docs/proc-macro-tutorial/03-quote.md`
-- [ ] T036 [US3] Write repetition syntax (#(...)* ) explanation in `docs/proc-macro-tutorial/03-quote.md`
-- [ ] T037 [US3] Write quote_spanned! for error locations in `docs/proc-macro-tutorial/03-quote.md`
-- [ ] T038 [US3] Write format_ident! usage in `docs/proc-macro-tutorial/03-quote.md`
-- [ ] T039 [US3] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T032 [US3] Write "What You'll Learn" section in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T033 [US3] Write "Building TokenStreams Manually" problem statement in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T034 [US3] Write basic quote! usage with examples in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T035 [US3] Write variable interpolation (#var) explanation in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T036 [US3] Write repetition syntax (#(...)* ) explanation in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T037 [US3] Write quote_spanned! for error locations in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T038 [US3] Write format_ident! usage in `docs/proc-macro-tutorial/03-quote.md`
+- [x] T039 [US3] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/03-quote.md`
 
 ### Example Code
 
-- [ ] T040 [US3] Implement Debug derive macro in `docs/proc-macro-tutorial/examples/03-generate-impl/src/lib.rs`
-- [ ] T041 [US3] Add usage example with cargo expand output in `docs/proc-macro-tutorial/examples/03-generate-impl/examples/demo.rs`
-- [ ] T042 [US3] Verify example compiles: `cd docs/proc-macro-tutorial/examples/03-generate-impl && cargo check`
+- [x] T040 [US3] Implement Debug derive macro in `docs/proc-macro-tutorial/examples/03-generate-impl/src/lib.rs`
+- [x] T041 [US3] Add usage example with cargo expand output in `docs/proc-macro-tutorial/examples/03-generate-impl/examples/demo.rs`
+- [x] T042 [US3] Verify example compiles: `cd docs/proc-macro-tutorial/examples/03-generate-impl && cargo check`
 
 **Checkpoint**: Chapter 3 complete - core pipeline (parse→generate) now documented
 
@@ -154,21 +154,21 @@ docs/proc-macro-tutorial/
 
 ### Chapter Content
 
-- [ ] T043 [US4] Write "What You'll Learn" section in `docs/proc-macro-tutorial/04-darling.md`
-- [ ] T044 [US4] Write manual attribute parsing "before" example in `docs/proc-macro-tutorial/04-darling.md`
-- [ ] T045 [US4] Create before/after comparison diagram (FR-014) in `docs/proc-macro-tutorial/04-darling.md`
-- [ ] T046 [US4] Write FromDeriveInput explanation in `docs/proc-macro-tutorial/04-darling.md`
-- [ ] T047 [US4] Write FromField explanation in `docs/proc-macro-tutorial/04-darling.md`
-- [ ] T048 [US4] Write darling attributes cheat sheet in `docs/proc-macro-tutorial/04-darling.md`
-- [ ] T049 [US4] Write error handling magic section in `docs/proc-macro-tutorial/04-darling.md`
-- [ ] T050 [US4] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T043 [US4] Write "What You'll Learn" section in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T044 [US4] Write manual attribute parsing "before" example in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T045 [US4] Create before/after comparison diagram (FR-014) in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T046 [US4] Write FromDeriveInput explanation in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T047 [US4] Write FromField explanation in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T048 [US4] Write darling attributes cheat sheet in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T049 [US4] Write error handling magic section in `docs/proc-macro-tutorial/04-darling.md`
+- [x] T050 [US4] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/04-darling.md`
 
 ### Example Code
 
-- [ ] T051 [US4] Implement manual parsing version in `docs/proc-macro-tutorial/examples/04-darling-attrs/src/manual.rs`
-- [ ] T052 [US4] Implement darling version in `docs/proc-macro-tutorial/examples/04-darling-attrs/src/lib.rs`
-- [ ] T053 [US4] Add usage example in `docs/proc-macro-tutorial/examples/04-darling-attrs/examples/demo.rs`
-- [ ] T054 [US4] Verify example compiles: `cd docs/proc-macro-tutorial/examples/04-darling-attrs && cargo check`
+- [x] T051 [US4] Implement manual parsing version in `docs/proc-macro-tutorial/examples/04-darling-attrs/src/manual.rs`
+- [x] T052 [US4] Implement darling version in `docs/proc-macro-tutorial/examples/04-darling-attrs/src/lib.rs`
+- [x] T053 [US4] Add usage example in `docs/proc-macro-tutorial/examples/04-darling-attrs/examples/demo.rs`
+- [x] T054 [US4] Verify example compiles: `cd docs/proc-macro-tutorial/examples/04-darling-attrs && cargo check`
 
 **Checkpoint**: Chapter 4 complete and testable independently
 
@@ -182,18 +182,18 @@ docs/proc-macro-tutorial/
 
 ### Chapter Content
 
-- [ ] T055 [US5] Write "What You'll Learn" section in `docs/proc-macro-tutorial/05-heck.md`
-- [ ] T056 [US5] Write case conversion problem statement in `docs/proc-macro-tutorial/05-heck.md`
-- [ ] T057 [US5] Write case conversion traits table in `docs/proc-macro-tutorial/05-heck.md`
-- [ ] T058 [US5] Write usage examples with format_ident! in `docs/proc-macro-tutorial/05-heck.md`
-- [ ] T059 [US5] Write common patterns section in `docs/proc-macro-tutorial/05-heck.md`
-- [ ] T060 [US5] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/05-heck.md`
+- [x] T055 [US5] Write "What You'll Learn" section in `docs/proc-macro-tutorial/05-heck.md`
+- [x] T056 [US5] Write case conversion problem statement in `docs/proc-macro-tutorial/05-heck.md`
+- [x] T057 [US5] Write case conversion traits table in `docs/proc-macro-tutorial/05-heck.md`
+- [x] T058 [US5] Write usage examples with format_ident! in `docs/proc-macro-tutorial/05-heck.md`
+- [x] T059 [US5] Write common patterns section in `docs/proc-macro-tutorial/05-heck.md`
+- [x] T060 [US5] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/05-heck.md`
 
 ### Example Code
 
-- [ ] T061 [US5] Implement case conversion macro in `docs/proc-macro-tutorial/examples/05-case-convert/src/lib.rs`
-- [ ] T062 [US5] Add usage example in `docs/proc-macro-tutorial/examples/05-case-convert/examples/demo.rs`
-- [ ] T063 [US5] Verify example compiles: `cd docs/proc-macro-tutorial/examples/05-case-convert && cargo check`
+- [x] T061 [US5] Implement case conversion macro in `docs/proc-macro-tutorial/examples/05-case-convert/src/lib.rs`
+- [x] T062 [US5] Add usage example in `docs/proc-macro-tutorial/examples/05-case-convert/examples/demo.rs`
+- [x] T063 [US5] Verify example compiles: `cd docs/proc-macro-tutorial/examples/05-case-convert && cargo check`
 
 **Checkpoint**: Chapter 5 complete and testable independently
 
@@ -207,22 +207,22 @@ docs/proc-macro-tutorial/
 
 ### Chapter Content
 
-- [ ] T064 [US6] Write "What You'll Learn" section in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T065 [US6] Write "Error Handling Matters" introduction in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T066 [US6] Write manual error handling problem statement in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T067 [US6] Write proc-macro-error2 solution explanation in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T068 [US6] Write core macros table (abort!, emit_error!, etc.) in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T069 [US6] Write before/after comparison in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T070 [US6] Write error accumulation pattern in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T071 [US6] Write integration with darling section in `docs/proc-macro-tutorial/06-errors.md`
-- [ ] T072 [US6] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T064 [US6] Write "What You'll Learn" section in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T065 [US6] Write "Error Handling Matters" introduction in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T066 [US6] Write manual error handling problem statement in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T067 [US6] Write proc-macro-error2 solution explanation in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T068 [US6] Write core macros table (abort!, emit_error!, etc.) in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T069 [US6] Write before/after comparison in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T070 [US6] Write error accumulation pattern in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T071 [US6] Write integration with darling section in `docs/proc-macro-tutorial/06-errors.md`
+- [x] T072 [US6] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/06-errors.md`
 
 ### Example Code
 
-- [ ] T073 [US6] Implement manual error handling version in `docs/proc-macro-tutorial/examples/06-error-handling/src/manual.rs`
-- [ ] T074 [US6] Implement proc-macro-error2 version in `docs/proc-macro-tutorial/examples/06-error-handling/src/lib.rs`
-- [ ] T075 [US6] Add usage example in `docs/proc-macro-tutorial/examples/06-error-handling/examples/demo.rs`
-- [ ] T076 [US6] Verify example compiles: `cd docs/proc-macro-tutorial/examples/06-error-handling && cargo check`
+- [x] T073 [US6] Implement manual error handling version in `docs/proc-macro-tutorial/examples/06-error-handling/src/manual.rs`
+- [x] T074 [US6] Implement proc-macro-error2 version in `docs/proc-macro-tutorial/examples/06-error-handling/src/lib.rs`
+- [x] T075 [US6] Add usage example in `docs/proc-macro-tutorial/examples/06-error-handling/examples/demo.rs`
+- [x] T076 [US6] Verify example compiles: `cd docs/proc-macro-tutorial/examples/06-error-handling && cargo check`
 
 **Checkpoint**: Chapter 6 complete and testable independently
 
@@ -236,15 +236,15 @@ docs/proc-macro-tutorial/
 
 ### Chapter Content
 
-- [ ] T077 [US7] Write "What You'll Learn" section in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T078 [US7] Write "The Big Picture" introduction in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T079 [US7] Create macro pipeline Mermaid diagram (FR-013) in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T080 [US7] Write annotated Builder macro walkthrough in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T081 [US7] Write common patterns section in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T082 [US7] Write error handling patterns (including proc-macro-error2) in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T083 [US7] Write testing macros section in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T084 [US7] Write reference checklist (7 crates) in `docs/proc-macro-tutorial/07-pipeline.md`
-- [ ] T085 [US7] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T077 [US7] Write "What You'll Learn" section in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T078 [US7] Write "The Big Picture" introduction in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T079 [US7] Create macro pipeline Mermaid diagram (FR-013) in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T080 [US7] Write annotated Builder macro walkthrough in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T081 [US7] Write common patterns section in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T082 [US7] Write error handling patterns (including proc-macro-error2) in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T083 [US7] Write testing macros section in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T084 [US7] Write reference checklist (7 crates) in `docs/proc-macro-tutorial/07-pipeline.md`
+- [x] T085 [US7] Write "Key Takeaways" conclusion in `docs/proc-macro-tutorial/07-pipeline.md`
 
 **Checkpoint**: Chapter 7 complete - full tutorial now available
 
@@ -254,13 +254,13 @@ docs/proc-macro-tutorial/
 
 **Purpose**: Cross-cutting quality improvements and validation
 
-- [ ] T086 [P] Add cross-references between chapters in all `docs/proc-macro-tutorial/*.md`
-- [ ] T087 [P] Add "Learn More" external links to all 7 chapters
-- [ ] T088 Verify all Mermaid diagrams render in GitHub preview
-- [ ] T089 Verify all code examples compile: `for d in docs/proc-macro-tutorial/examples/*/; do (cd "$d" && cargo check); done`
-- [ ] T090 Review tone for conversational style per FR-016
-- [ ] T091 Verify each chapter readable in <20 minutes (SC-002)
-- [ ] T092 Final proofreading pass on all chapters
+- [x] T086 [P] Add cross-references between chapters in all `docs/proc-macro-tutorial/*.md`
+- [x] T087 [P] Add "Learn More" external links to all 7 chapters
+- [x] T088 Verify all Mermaid diagrams render in GitHub preview
+- [x] T089 Verify all code examples compile: `for d in docs/proc-macro-tutorial/examples/*/; do (cd "$d" && cargo check); done`
+- [x] T090 Review tone for conversational style per FR-016
+- [x] T091 Verify each chapter readable in <20 minutes (SC-002)
+- [x] T092 Final proofreading pass on all chapters
 
 **Checkpoint**: Tutorial complete and validated
 
