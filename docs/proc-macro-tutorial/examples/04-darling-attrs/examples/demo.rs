@@ -2,6 +2,8 @@
 //!
 //! Run with: cargo run --example demo 2>&1
 
+#![allow(dead_code)]
+
 use darling_attrs::ConfigDerive;
 
 // Example 1: Full config with all attribute types

@@ -3,6 +3,8 @@
 //! Run with: cargo run --example demo 2>&1
 //! Or see generated code: cargo +nightly expand --example demo
 
+#![allow(dead_code)]
+
 use generate_impl::{Getters, SimpleBuilder, SimpleDebug};
 
 // Example 1: Custom Debug implementation

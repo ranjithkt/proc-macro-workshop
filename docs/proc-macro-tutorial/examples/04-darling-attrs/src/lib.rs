@@ -28,6 +28,7 @@ struct ConfigInput {
 #[darling(attributes(config))]
 struct ConfigField {
     ident: Option<Ident>,
+    #[allow(dead_code)]
     ty: Type,
 
     /// Custom environment variable name

@@ -2,6 +2,8 @@
 //!
 //! Run with: cargo run --example demo 2>&1
 
+#![allow(dead_code)]
+
 use error_handling::Validated;
 
 // This struct should compile fine - all validation passes

@@ -3,6 +3,8 @@
 //! Run with: cargo run --example demo 2>&1
 //! The 2>&1 captures stderr where eprintln! writes.
 
+#![allow(dead_code)]
+
 use token_debug::{count_tokens, debug_tokens, inspect_tokens};
 
 // Try uncommenting different examples to see the token output!

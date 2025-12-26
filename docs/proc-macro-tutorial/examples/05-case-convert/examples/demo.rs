@@ -2,6 +2,8 @@
 //!
 //! Run with: cargo run --example demo 2>&1
 
+#![allow(dead_code, non_camel_case_types)]
+
 use case_convert::{BuilderNamed, EnumKebab};
 
 // Example 1: Show case conversions for struct fields

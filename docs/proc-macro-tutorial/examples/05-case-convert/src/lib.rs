@@ -61,7 +61,7 @@ pub fn derive_case_demo(input: TokenStream) -> TokenStream {
         // Generate identifiers
         let getter = format_ident!("get_{}", snake);
         let setter = format_ident!("set{}", pascal);
-        let const_name = format_ident!("{}_DEFAULT", shouty);
+        let _const_name = format_ident!("{}_DEFAULT", shouty); // For demonstration
         let kebab_str = kebab;
 
         quote! {
