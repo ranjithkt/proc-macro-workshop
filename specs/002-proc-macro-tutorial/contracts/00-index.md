@@ -26,6 +26,7 @@ Provide navigation and overview for the entire tutorial.
    | quote | Code generation | 03 |
    | darling | Attribute parsing | 04 |
    | heck | Case conversion | 05 |
+   | proc-macro-error2 | Error handling | 06 |
 
 3. **Chapter List** (linked)
    - Chapter 1: Understanding Tokens
@@ -33,11 +34,12 @@ Provide navigation and overview for the entire tutorial.
    - Chapter 3: Generating Code with quote
    - Chapter 4: Ergonomic Attributes with darling
    - Chapter 5: Case Conversion with heck
-   - Chapter 6: The Complete Pipeline
+   - Chapter 6: Error Handling with proc-macro-error2
+   - Chapter 7: The Complete Pipeline
 
 4. **How to Read This Tutorial**
    - Linear reading recommended for beginners
-   - Chapter 4 and 5 can be read in either order
+   - Chapters 4, 5, and 6 can be read in any order (all require Chapter 3)
    - Code examples are runnable
 
 5. **Running the Examples**

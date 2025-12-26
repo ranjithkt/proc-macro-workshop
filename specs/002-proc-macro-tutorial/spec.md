@@ -4,7 +4,7 @@
 **Created**: 2025-12-25  
 **Updated**: 2025-12-25  
 **Status**: Draft  
-**Input**: Create educational documentation explaining proc-macro concepts from all crates used (proc-macro, proc-macro2, syn, quote, darling, heck) with textbook-style flow, code examples, and eprintln debugging demonstrations
+**Input**: Create educational documentation explaining proc-macro concepts from all crates used (proc-macro, proc-macro2, syn, quote, darling, proc-macro-error2, heck) with textbook-style flow, code examples, and eprintln debugging demonstrations
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -87,7 +87,23 @@ A developer needs to transform identifier names (e.g., convert `field_name` to `
 
 ---
 
-### User Story 6 - Understanding the Complete Pipeline (Priority: P2)
+### User Story 6 - Ergonomic Error Handling with proc-macro-error2 (Priority: P2)
+
+A developer is manually constructing `syn::Error` and calling `.to_compile_error()`, finding the pattern repetitive. They want to learn how proc-macro-error2 provides cleaner error handling with `abort!`, `emit_error!`, and the `#[proc_macro_error]` attribute.
+
+**Why this priority**: Error handling is critical for production macros. This crate is used in all 5 workshop projects and is listed in the constitution as a recommended dependency.
+
+**Independent Test**: Can be fully tested by the reader refactoring manual error handling to use proc-macro-error2's macros and attributes.
+
+**Acceptance Scenarios**:
+
+1. **Given** a macro using `syn::Error::new().to_compile_error()`, **When** refactored with proc-macro-error2, **Then** the code uses `abort!` or `abort_call_site!` for cleaner error handling
+2. **Given** the `#[proc_macro_error]` attribute, **When** applied to entry point, **Then** error handling boilerplate is eliminated
+3. **Given** multiple validation errors, **When** `emit_error!` is used, **Then** all errors are reported rather than failing on the first
+
+---
+
+### User Story 7 - Understanding the Complete Pipeline (Priority: P2)
 
 A developer has learned the individual crates but wants to see how they fit together in a real-world macro. They need a visual and narrative that connects all the concepts into a coherent mental model.
 
@@ -118,25 +134,26 @@ A developer has learned the individual crates but wants to see how they fit toge
 - **FR-003**: Documentation MUST cover syn's core types: DeriveInput, Data, Fields, Attribute, Meta, and the parse module
 - **FR-004**: Documentation MUST explain quote's macro syntax including variable interpolation (#var) and iteration (#(#iter)*)
 - **FR-005**: Documentation MUST cover darling's traits: FromDeriveInput, FromField, FromMeta, and common attributes like forward_attrs
-- **FR-006**: Documentation MUST cover heck crate for case conversions (snake_case, PascalCase, camelCase, etc.)
-- **FR-007**: Documentation MUST include runnable code examples that demonstrate eprintln debugging of TokenStreams and parsed structures
-- **FR-008**: Documentation MUST be organized as multiple linked markdown files with a clear progression from foundational to advanced concepts
-- **FR-009**: Each chapter MUST include a "What You'll Learn" summary and a "Key Takeaways" conclusion
+- **FR-006**: Documentation MUST cover proc-macro-error2's error handling: `abort!`, `emit_error!`, `abort_call_site!`, and the `#[proc_macro_error]` attribute
+- **FR-007**: Documentation MUST cover heck crate for case conversions (snake_case, PascalCase, camelCase, etc.)
+- **FR-008**: Documentation MUST include runnable code examples that demonstrate eprintln debugging of TokenStreams and parsed structures
+- **FR-009**: Documentation MUST be organized as multiple linked markdown files with a clear progression from foundational to advanced concepts
+- **FR-010**: Each chapter MUST include a "What You'll Learn" summary and a "Key Takeaways" conclusion
 
 ### Visual Diagram Requirements
 
-- **FR-010**: Documentation MUST include a **TokenStream structure diagram** showing how code becomes tokens (ASCII art or Mermaid flowchart)
-- **FR-011**: Documentation MUST include a **syn type hierarchy diagram** showing relationships between DeriveInput, Data, Fields, etc.
-- **FR-012**: Documentation MUST include a **macro pipeline flowchart** showing: Input → proc-macro → syn parse → transform → quote → proc-macro → Output
-- **FR-013**: Documentation MUST include **before/after code comparison diagrams** for darling refactoring examples
-- **FR-014**: All diagrams MUST be renderable in standard markdown (Mermaid syntax preferred for compatibility)
+- **FR-011**: Documentation MUST include a **TokenStream structure diagram** showing how code becomes tokens (ASCII art or Mermaid flowchart)
+- **FR-012**: Documentation MUST include a **syn type hierarchy diagram** showing relationships between DeriveInput, Data, Fields, etc.
+- **FR-013**: Documentation MUST include a **macro pipeline flowchart** showing: Input → proc-macro → syn parse → transform → quote → proc-macro → Output
+- **FR-014**: Documentation MUST include **before/after code comparison diagrams** for darling refactoring examples
+- **FR-015**: All diagrams MUST be renderable in standard markdown (Mermaid syntax preferred for compatibility)
 
 ### Tone and Style Requirements
 
-- **FR-015**: Documentation MUST maintain an entertaining, conversational tone while being technically accurate
-- **FR-016**: Code examples MUST show both the Rust code being parsed AND the output of eprintln debugging
-- **FR-017**: Documentation MUST explain how each crate solves problems that the previous crate left unsolved (building narrative)
-- **FR-018**: Documentation MUST include "Aha!" moments that highlight key insights
+- **FR-016**: Documentation MUST maintain an entertaining, conversational tone while being technically accurate
+- **FR-017**: Code examples MUST show both the Rust code being parsed AND the output of eprintln debugging
+- **FR-018**: Documentation MUST explain how each crate solves problems that the previous crate left unsolved (building narrative)
+- **FR-019**: Documentation MUST include "Aha!" moments that highlight key insights
 
 ### Key Entities
 
@@ -144,18 +161,19 @@ A developer has learned the individual crates but wants to see how they fit toge
 - **Code Example**: A compilable snippet with input code, macro code, and expected output (both success and debug prints)
 - **Diagram**: A visual representation (Mermaid or ASCII) embedded in markdown showing type relationships or data flow
 - **Concept**: A named idea (e.g., "TokenTree", "DeriveInput") with definition, examples, and connections to other concepts
-- **Crate**: One of the 6 crates being documented (proc-macro, proc-macro2, syn, quote, darling, heck), with its purpose, key types, and role in the ecosystem
+- **Crate**: One of the 7 crates being documented (proc-macro, proc-macro2, syn, quote, darling, proc-macro-error2, heck), with its purpose, key types, and role in the ecosystem
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: A reader with basic Rust knowledge can follow the tutorial from start to finish in under 2 hours
+- **SC-001**: A reader with basic Rust knowledge can follow the tutorial from start to finish in under 2 hours of reading time (excluding hands-on exercises)
 - **SC-002**: Each chapter can be read independently in under 20 minutes
 - **SC-003**: 100% of code examples compile and produce the documented output
 - **SC-004**: A reader completing the tutorial can write a basic derive macro from scratch without referring back to documentation
 - **SC-005**: The documentation covers all types we actually used in the proc-macro-workshop implementations
 - **SC-006**: Documentation contains at least 4 visual diagrams (TokenStream structure, syn hierarchy, pipeline flowchart, darling comparison)
+- **SC-007**: Documentation covers all 7 crates used in the proc-macro-workshop implementations including proc-macro-error2
 
 ## Assumptions
 
@@ -167,6 +185,7 @@ A developer has learned the individual crates but wants to see how they fit toge
   - quote 1.x
   - proc-macro2 1.x
   - darling 0.20.x
+  - proc-macro-error2 2.x
   - heck 0.5.x
 - Readers have access to cargo and can run code examples locally
 - Mermaid diagrams are viewable in GitHub, VS Code, and most modern markdown renderers

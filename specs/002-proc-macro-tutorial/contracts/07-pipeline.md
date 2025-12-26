@@ -1,4 +1,4 @@
-# Contract: Chapter 06 - The Complete Pipeline
+# Contract: Chapter 07 - The Complete Pipeline
 
 ## Purpose
 Synthesize all concepts into a unified mental model with a complete macro walkthrough.
@@ -6,7 +6,7 @@ Synthesize all concepts into a unified mental model with a complete macro walkth
 ## Content Requirements
 
 ### What You'll Learn
-- How all crates fit together
+- How all 7 crates fit together
 - The macro expansion pipeline
 - Common patterns and idioms
 - Reference architecture for derive macros
@@ -18,7 +18,7 @@ Synthesize all concepts into a unified mental model with a complete macro walkth
    - Input → Parse → Transform → Generate → Output
    - Each crate handles one stage
 
-2. **Diagram: The Macro Pipeline** (FR-012)
+2. **Diagram: The Macro Pipeline** (FR-013)
    ```mermaid
    graph LR
        subgraph Input
@@ -34,9 +34,12 @@ Synthesize all concepts into a unified mental model with a complete macro walkth
        subgraph Generate
            E --> F[quote!<br/>TokenStream]
        end
+       subgraph "Error Handling"
+           F -.-> G[proc-macro-error2<br/>abort!/emit_error!]
+       end
        subgraph Output
-           F --> G[proc-macro<br/>TokenStream]
-           G --> H[Generated Code]
+           F --> H[proc-macro<br/>TokenStream]
+           H --> I[Generated Code]
        end
    ```
 
@@ -46,6 +49,7 @@ Synthesize all concepts into a unified mental model with a complete macro walkth
    ```rust
    // Chapter 01: Entry point receives TokenStream
    #[proc_macro_derive(Builder, attributes(builder))]
+   #[proc_macro_error]  // Chapter 06: Error handling
    pub fn derive(input: TokenStream) -> TokenStream {
        // Chapter 02: syn parses to structured types
        let input = parse_macro_input!(input as DeriveInput);
@@ -53,7 +57,7 @@ Synthesize all concepts into a unified mental model with a complete macro walkth
        // Chapter 04: darling extracts attributes
        match BuilderInput::from_derive_input(&input) {
            Ok(parsed) => {
-               // Chapter 03 & 05: quote generates code
+               // Chapter 03 & 05: quote + heck generates code
                generate_builder(parsed).into()
            }
            Err(e) => e.write_errors().into(),
@@ -65,13 +69,14 @@ Synthesize all concepts into a unified mental model with a complete macro walkth
    - **Pattern 1**: Parse → Validate → Generate
    - **Pattern 2**: Struct + Field iteration
    - **Pattern 3**: Optional attribute with default
-   - **Pattern 4**: Error accumulation
+   - **Pattern 4**: Error accumulation with emit_error!
 
 5. **Error Handling Patterns** (~300 words)
-   - syn::Error for simple cases
-   - quote_spanned! for location
-   - darling's built-in error handling
-   - Collecting multiple errors
+   - **Simple errors**: syn::Error for single error cases
+   - **Span preservation**: quote_spanned! for location-aware errors
+   - **Ergonomic errors**: proc-macro-error2's abort! and emit_error!
+   - **Darling integration**: write_errors() for attribute parsing
+   - **When to use each**: Decision tree for error handling approach
 
 6. **Testing Your Macros** (~200 words)
    - cargo expand for debugging
@@ -87,19 +92,21 @@ Synthesize all concepts into a unified mental model with a complete macro walkth
    syn = { version = "2", features = ["derive", "parsing"] }
    quote = "1"
    proc-macro2 = "1"
-   # Optional:
-   darling = "0.20"  # Complex attributes
-   heck = "0.5"      # Case conversion
+   # Optional (but recommended):
+   darling = "0.20"           # Complex attribute parsing
+   proc-macro-error2 = "2"    # Ergonomic error handling
+   heck = "0.5"               # Case conversion
    ```
 
 8. **Key Takeaways**
    - Pipeline: TokenStream → syn → transform → quote → TokenStream
    - Each crate solves one problem well
-   - Combine them for powerful, maintainable macros
+   - Always use `#[proc_macro_error]` on entry points
+   - Combine all 7 crates for powerful, maintainable macros
    - Test with trybuild, debug with cargo expand
 
 ### Diagrams Required
-- [x] Complete pipeline flowchart (FR-012)
+- [x] Complete pipeline flowchart (FR-013)
 
 ## Estimated Time
 20 minutes

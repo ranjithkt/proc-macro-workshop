@@ -5,7 +5,7 @@
 
 ## Summary
 
-Create a comprehensive, textbook-style tutorial explaining procedural macro development in Rust. The documentation covers 6 crates (proc-macro, proc-macro2, syn, quote, darling, heck) with a building-block narrative where each chapter solves problems left by the previous. Includes Mermaid diagrams, runnable code examples with eprintln debugging, and an entertaining conversational tone.
+Create a comprehensive, textbook-style tutorial explaining procedural macro development in Rust. The documentation covers 7 crates (proc-macro, proc-macro2, syn, quote, darling, proc-macro-error2, heck) with a building-block narrative where each chapter solves problems left by the previous. Includes Mermaid diagrams, runnable code examples with eprintln debugging, and an entertaining conversational tone.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ Create a comprehensive, textbook-style tutorial explaining procedural macro deve
 **Project Type**: Documentation (multiple linked markdown files)  
 **Performance Goals**: Each chapter readable in <20 minutes, total tutorial <2 hours  
 **Constraints**: Mermaid diagrams must render in GitHub/VS Code without plugins  
-**Scale/Scope**: 6 chapters + index, ~15,000 words total, 4+ diagrams, 20+ code examples
+**Scale/Scope**: 7 chapters + index, ~17,000 words total, 4+ diagrams, 25+ code examples
 
 ## Constitution Check
 
@@ -50,7 +50,8 @@ specs/002-proc-macro-tutorial/
 │   ├── 03-quote.md
 │   ├── 04-darling.md
 │   ├── 05-heck.md
-│   └── 06-pipeline.md
+│   ├── 06-errors.md
+│   └── 07-pipeline.md
 └── tasks.md             # Phase 2 output
 ```
 
@@ -65,13 +66,15 @@ docs/
 │   ├── 03-quote.md          # Chapter 3: Code generation with quote
 │   ├── 04-darling.md        # Chapter 4: Attribute parsing with darling
 │   ├── 05-heck.md           # Chapter 5: Case conversion with heck
-│   ├── 06-pipeline.md       # Chapter 6: Complete pipeline synthesis
+│   ├── 06-errors.md         # Chapter 6: Error handling with proc-macro-error2
+│   ├── 07-pipeline.md       # Chapter 7: Complete pipeline synthesis
 │   └── examples/            # Standalone compilable examples
 │       ├── 01-token-debug/
 │       ├── 02-parse-struct/
 │       ├── 03-generate-impl/
 │       ├── 04-darling-attrs/
-│       └── 05-case-convert/
+│       ├── 05-case-convert/
+│       └── 06-error-handling/
 ```
 
 **Structure Decision**: Documentation-first structure with chapters in `docs/proc-macro-tutorial/`. Examples are standalone Cargo projects that readers can compile and run with `cargo expand`.
@@ -85,4 +88,4 @@ docs/
 | File format | Markdown | Universal compatibility, GitHub rendering |
 | Diagram format | Mermaid | Native GitHub/VS Code support, no external tools |
 | Example format | Standalone Cargo projects | Readers can `cargo run` and `cargo expand` |
-| Chapter count | 6 + index | One per crate + synthesis chapter |
+| Chapter count | 7 + index | One per major crate + synthesis chapter |

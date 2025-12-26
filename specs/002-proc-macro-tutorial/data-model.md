@@ -50,7 +50,8 @@ A named idea with definition and connections.
 | 03 | quote!, quote_spanned!, format_ident!, interpolation, repetition |
 | 04 | FromDeriveInput, FromField, FromMeta, darling attributes |
 | 05 | ToSnakeCase, ToPascalCase, ToCamelCase, case conversion traits |
-| 06 | Pipeline stages, macro flow, patterns |
+| 06 | abort!, emit_error!, #[proc_macro_error], error accumulation, span preservation |
+| 07 | Pipeline stages, macro flow, patterns |
 
 ---
 
@@ -99,16 +100,16 @@ A visual representation embedded in markdown.
 
 | ID | Title | Type | Chapter | Requirement |
 |----|-------|------|---------|-------------|
-| D1 | TokenStream Structure | flowchart | 01 | FR-010 |
-| D2 | syn Type Hierarchy | classDiagram | 02 | FR-011 |
-| D3 | Macro Pipeline | flowchart | 06 | FR-012 |
-| D4 | Darling Before/After | flowchart | 04 | FR-013 |
+| D1 | TokenStream Structure | flowchart | 01 | FR-011 |
+| D2 | syn Type Hierarchy | classDiagram | 02 | FR-012 |
+| D3 | Macro Pipeline | flowchart | 07 | FR-013 |
+| D4 | Darling Before/After | flowchart | 04 | FR-014 |
 
 ---
 
 ### Crate
 
-One of the 6 crates being documented.
+One of the 7 crates being documented.
 
 | Attribute | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -129,6 +130,7 @@ One of the 6 crates being documented.
 | quote | 1.x | 03 | quote!, format_ident! |
 | darling | 0.20.x | 04 | FromDeriveInput, FromField |
 | heck | 0.5.x | 05 | ToSnakeCase, ToPascalCase |
+| proc-macro-error2 | 2.x | 06 | abort!, emit_error!, #[proc_macro_error] |
 
 ---
 
@@ -141,16 +143,18 @@ graph TD
     C2 --> C3[03-quote.md<br/>Code generation]
     C3 --> C4[04-darling.md<br/>Attribute parsing]
     C3 --> C5[05-heck.md<br/>Case conversion]
-    C4 --> C6[06-pipeline.md<br/>Complete pipeline]
-    C5 --> C6
+    C3 --> C6[06-errors.md<br/>Error handling]
+    C4 --> C7[07-pipeline.md<br/>Complete pipeline]
+    C5 --> C7
+    C6 --> C7
 ```
 
 **Reading Order**:
 1. 01-tokens (required first)
 2. 02-syn (requires 01)
 3. 03-quote (requires 02)
-4. 04-darling OR 05-heck (both require 03, independent of each other)
-5. 06-pipeline (requires all previous)
+4. 04-darling, 05-heck, OR 06-errors (all require 03, independent of each other)
+5. 07-pipeline (requires all previous)
 
 ---
 

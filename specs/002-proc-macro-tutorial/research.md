@@ -206,7 +206,69 @@ struct BuilderField {
 
 ---
 
-### 6. heck (Case Conversion)
+### 6. proc-macro-error2 (Error Handling)
+
+**Official Docs**: https://docs.rs/proc-macro-error2/latest/proc_macro_error2/
+
+**Key Macros and Attributes**:
+| Item | Purpose |
+|------|---------|
+| `#[proc_macro_error]` | Attribute for macro entry points, enables error macros |
+| `abort!` | Emit error and stop expansion immediately |
+| `abort_call_site!` | Same as abort! but uses call site span |
+| `emit_error!` | Emit error but continue processing |
+| `emit_call_site_error!` | Same as emit_error! but uses call site span |
+| `emit_warning!` | Emit warning (nightly only) |
+
+**Before/After Example**:
+
+**Before (manual syn::Error)**:
+```rust
+#[proc_macro_derive(MyMacro)]
+pub fn derive(input: TokenStream) -> TokenStream {
+    let input = match syn::parse::<DeriveInput>(input) {
+        Ok(input) => input,
+        Err(e) => return e.to_compile_error().into(),
+    };
+    
+    // Later error...
+    return syn::Error::new(span, "message")
+        .to_compile_error()
+        .into();
+}
+```
+
+**After (proc-macro-error2)**:
+```rust
+#[proc_macro_derive(MyMacro)]
+#[proc_macro_error]
+pub fn derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    
+    // Later error...
+    abort!(span, "message");
+}
+```
+
+**When to Use**:
+- **Use proc-macro-error2** when: Multiple errors needed, `abort!` ergonomics desired, cleaner entry point code
+- **Use syn::Error** when: Simple single-error cases, avoiding extra dependencies, custom error accumulation patterns
+
+**Key Benefits**:
+1. Eliminates `.to_compile_error().into()` boilerplate
+2. Enables multiple error emission with `emit_error!`
+3. Cleaner `?` operator usage inside macro logic
+4. Consistent error handling pattern across all entry points
+
+**Note**: This is a maintained fork of the original `proc-macro-error` crate (which is unmaintained since 2021). The constitution explicitly recommends `proc-macro-error2` over the original.
+
+**Decision**: Cover in Chapter 6 (Error Handling) as the ergonomic solution for error handling.
+
+**Rationale**: All 5 workshop projects use this crate with `#[proc_macro_error]` attribute. Readers should learn the pattern they'll see in the actual code.
+
+---
+
+### 7. heck (Case Conversion)
 
 **Official Docs**: https://docs.rs/heck/latest/heck/
 

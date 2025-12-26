@@ -2,14 +2,14 @@
 
 ## Overview
 
-This tutorial teaches procedural macro development in Rust through 6 chapters covering the essential crates: proc-macro, proc-macro2, syn, quote, darling, and heck.
+This tutorial teaches procedural macro development in Rust through 7 chapters covering the essential crates: proc-macro, proc-macro2, syn, quote, darling, proc-macro-error2, and heck.
 
 ## Reading the Tutorial
 
 ### Linear Path (Recommended for Beginners)
 
 ```
-README.md → 01-tokens.md → 02-syn.md → 03-quote.md → 04-darling.md → 05-heck.md → 06-pipeline.md
+README.md → 01-tokens.md → 02-syn.md → 03-quote.md → 04-darling.md → 05-heck.md → 06-errors.md → 07-pipeline.md
 ```
 
 **Total time**: ~2 hours
@@ -18,8 +18,8 @@ README.md → 01-tokens.md → 02-syn.md → 03-quote.md → 04-darling.md → 0
 
 If you already know the basics:
 - Skip to **02-syn.md** if you understand TokenStream
-- Skip to **06-pipeline.md** for a reference walkthrough
-- Use **04-darling.md** and **05-heck.md** as-needed references
+- Skip to **07-pipeline.md** for a reference walkthrough
+- Use **04-darling.md**, **05-heck.md**, and **06-errors.md** as-needed references
 
 ## Running Code Examples
 
@@ -86,6 +86,7 @@ Diagrams use Mermaid syntax. They render automatically in:
 | syn | Parse tokens to AST |
 | quote | Generate tokens from Rust-like syntax |
 | darling | Declarative attribute parsing |
+| proc-macro-error2 | Ergonomic error handling |
 | heck | Case conversion utilities |
 
 ### Common Imports
@@ -99,6 +100,9 @@ use syn::{parse_macro_input, DeriveInput};
 // With darling
 use darling::{FromDeriveInput, FromField};
 
+// With proc-macro-error2
+use proc_macro_error2::{abort, proc_macro_error};
+
 // With heck
 use heck::{ToSnakeCase, ToPascalCase};
 ```
@@ -107,10 +111,12 @@ use heck::{ToSnakeCase, ToPascalCase};
 
 ```rust
 use proc_macro::TokenStream;
+use proc_macro_error2::proc_macro_error;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
 #[proc_macro_derive(MyMacro)]
+#[proc_macro_error]
 pub fn derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
