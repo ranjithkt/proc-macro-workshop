@@ -32,6 +32,42 @@ fn get_debug_format(attrs: &[Attribute]) -> Option<String> {
 }
 ```
 
+### Where do these `Attribute`s come from?
+
+In a derive macro, you start with a `TokenStream`, parse it into a `syn::DeriveInput`, and then poke around inside that AST. `syn` represents *every* `#[...]` as an `Attribute`, and you’ll see them in two main places:
+
+- **On the container** (the struct/enum itself): `input.attrs`
+- **On each field**: `field.attrs`
+
+So for code like:
+
+```rust
+#[derive(MyMacro)]
+#[my_macro(name = "Widget")]     // container attribute (goes on DeriveInput)
+struct Widget {
+    #[builder(each = "arg")]     // field attribute (goes on syn::Field)
+    args: Vec<String>,
+}
+```
+
+`syn` hands your macro a tree that (very roughly) looks like:
+
+```text
+DeriveInput
+├─ attrs: Vec<Attribute>         // attributes on the item (struct/enum)
+└─ data: Data::Struct
+   └─ fields: Vec<Field>
+      └─ Field.attrs: Vec<Attribute>   // attributes on each field
+```
+
+And each `Attribute` contains a parsed “meta item” — the thing inside the brackets:
+
+- `#[debug]` → `Meta::Path`
+- `#[debug = "..."]` → `Meta::NameValue`
+- `#[builder(each = "arg", default)]` → `Meta::List`
+
+That’s why manual parsing turns into nested `match` soup so quickly: you’re walking this meta structure by hand.
+
 That's 15 lines for *one simple attribute*. Now imagine parsing:
 
 ```rust
@@ -62,6 +98,20 @@ graph LR
         G["#[derive(FromField)]"] --> H[Automatic parsing!]
     end
 ```
+
+### The Big Picture: What darling actually does
+
+`darling` is best thought of as **a translator from `syn`’s AST into your own Rust structs**.
+
+Instead of writing:
+
+- “loop attributes”
+- “check attribute name”
+- “parse meta list”
+- “handle defaults”
+- “produce nice errors”
+
+…you define a struct that *describes what you want*, and darling generates the boring parts.
 
 ### Before (Manual)
 
@@ -105,6 +155,14 @@ struct BuilderField {
 }
 ```
 
+What this means in human terms:
+
+- `#[derive(FromField)]` tells darling: “generate a `BuilderField::from_field(&syn::Field)` parser.”
+- `#[darling(attributes(builder))]` tells it: “look for attributes named `builder` (i.e. `#[builder(...)]`) on the field.”
+- `#[darling(default)]` means: “if the attribute key is absent, don’t error — use a default (`None` for `Option<T>`, `false` for `bool`, etc.).”
+
+So instead of you spelunking through `Meta::List` manually, you get a typed value like `BuilderField { each: Some("arg".into()), .. }`.
+
 ---
 
 ## FromDeriveInput: Struct-Level Parsing
@@ -130,6 +188,16 @@ struct MyInput {
 }
 ```
 
+### How this fits into a derive macro
+
+Your proc-macro entry point still looks the same:
+
+1. Parse `TokenStream` → `syn::DeriveInput`
+2. Parse `DeriveInput` → your typed config struct (that’s the “darling step”)
+3. Generate output tokens with `quote!`
+
+The “darling step” is usually just one line: `MyInput::from_derive_input(&input)`.
+
 ### Usage
 
 ```rust
@@ -147,6 +215,11 @@ pub fn derive(input: TokenStream) -> TokenStream {
     // ...
 }
 ```
+
+Two important details that are easy to miss:
+
+- `attributes(my_macro)` (on `#[proc_macro_derive(...)]`) tells Rust: “this derive macro is allowed to see helper attributes named `my_macro` without warning the user.”
+- `#[darling(attributes(my_macro))]` (on your config struct) tells darling: “when parsing, pay attention to `#[my_macro(...)]`.”
 
 **💡 Aha!** Notice `e.write_errors()`—darling generates helpful error messages automatically, including "Did you mean?" suggestions for typos!
 
@@ -176,6 +249,8 @@ struct BuilderField {
 }
 ```
 
+This is the field-level version of the same idea: darling generates a parser that takes a `syn::Field` (which contains `ident`, `ty`, and `attrs`) and produces a nice Rust struct you can use during code generation.
+
 ### Accessing Fields
 
 When using `Data<(), MyField>`, iterate like this:
@@ -201,6 +276,12 @@ fn process_fields(data: &Data<(), MyField>) -> Vec<TokenStream> {
         .collect()
 }
 ```
+
+If you’re wondering “why not use `syn::Data` directly?” — you can! `darling::ast::Data` is just a convenience wrapper that:
+
+- Normalizes structs/enums for you
+- Applies your `FromField` / `FromVariant` parsers automatically
+- Lets you write “give me the struct fields” logic without re-matching the `syn::Data` shape every time
 
 ---
 
@@ -279,6 +360,38 @@ If there are 3 attribute errors, the user sees all 3 at once—much better UX th
 
 ---
 
+## FromMeta: Parsing the Inside of `#[attr(...)]`
+
+Sometimes you want to parse the *arguments* of an attribute as their own struct (especially when the attribute has multiple options).
+
+For example, these:
+
+```rust
+#[builder(each = "arg", rename = "args", default)]
+```
+
+…are a mini “configuration language”. `FromMeta` lets you model that configuration directly:
+
+```rust
+use darling::FromMeta;
+
+#[derive(FromMeta)]
+struct BuilderArgs {
+    #[darling(default)]
+    each: Option<String>,
+
+    #[darling(default)]
+    rename: Option<String>,
+
+    #[darling(default)]
+    default: bool,
+}
+```
+
+You won’t always need `FromMeta`, but it’s the secret weapon when you want your attribute syntax to scale without turning into spaghetti.
+
+---
+
 ## When NOT to Use Darling
 
 Darling is fantastic, but sometimes overkill:
@@ -327,6 +440,29 @@ impl BuilderInput {
     pub fn fields(&self) -> &[BuilderField] {
         &self.data.as_ref().take_struct().unwrap().fields
     }
+}
+```
+
+And here’s the missing “glue” — the part where these parsing structs actually get used:
+
+```rust
+use proc_macro::TokenStream;
+use syn::{parse_macro_input, DeriveInput};
+
+#[proc_macro_derive(Builder, attributes(builder))]
+pub fn derive_builder(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let parsed = match BuilderInput::from_derive_input(&input) {
+        Ok(p) => p,
+        Err(e) => return e.write_errors().into(),
+    };
+
+    // At this point, `parsed.fields()` is a typed list of BuilderField values
+    // (with `each`, `ty`, etc.) ready to drive `quote!` code generation.
+    //
+    // Next chapters/examples fill in the actual builder code generation.
+    todo!()
 }
 ```
 

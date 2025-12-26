@@ -34,7 +34,26 @@ fn generate_impl_manually(name: &Ident) -> TokenStream {
 
 That's like writing HTML by concatenating strings. There has to be a better way.
 
-**Enter `quote`**: write Rust-like syntax, get `TokenStream` out.
+Quick aside before we escape this manual-token dungeon: proc macros care a lot about *where tokens came from*.
+
+### So… what’s a `Span`?
+
+If you’ve never met `Span` before: you’re not alone — it’s one of those “invisible until it hurts” proc-macro concepts.
+
+A **`Span`** is *where a token came from* (roughly: a source location + context). Rust uses spans for two big things:
+
+- **Error messages**: when generated code fails to compile, spans decide what the compiler underlines.
+- **Hygiene**: spans help Rust decide which names resolve to which bindings (so macros don’t accidentally capture variables… unless you want them to).
+
+In the manual example you saw `Ident::new("impl", Span::call_site())`. When you manually create tokens, you must pick a span. `Span::call_site()` means “pretend this token came from where the macro was invoked,” which usually makes errors point at the macro call.
+
+The good news: **`quote!` will handle spans for you most of the time**. And when you *do* care (better diagnostics!), you’ll reach for `quote_spanned!` a bit later in this chapter.
+
+---
+
+## Okay, enough suffering: meet `quote`
+
+**Enter `quote`**: write Rust-like syntax, get a `TokenStream` out.
 
 ---
 
@@ -205,6 +224,22 @@ quote! {
 ```
 
 ---
+
+## A Quick Detour: Spans (Why You Should Care)
+
+Spans sit quietly in the background of the whole proc-macro pipeline:
+
+- Your input comes in as tokens **with spans from the user’s source code**.
+- `syn` keeps those spans on AST nodes (types, fields, idents, attributes…).
+- When you interpolate `syn` things into `quote!`, those tokens usually **keep their original spans**.
+- But when you *create brand new tokens* (fresh identifiers, new `where` clauses, helper functions, etc.), they often default to **call-site spans** — which can make errors feel like “the macro broke” instead of “this field is wrong”.
+
+So the rule of thumb is:
+
+- **Interpolate existing AST when you can** (it tends to preserve useful spans).
+- **Attach a span intentionally when you’re emitting “this is invalid” checks** (so the compiler points at the right spot).
+
+That brings us to…
 
 ## quote_spanned! for Better Errors
 
