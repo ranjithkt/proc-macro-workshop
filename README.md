@@ -13,6 +13,7 @@ by other authors.*
 ## Contents
 
 - [**Suggested prerequisites**](#suggested-prerequisites)
+- [**🚀 Before You Dive In...**](#-before-you-dive-in) — The secret weapon you didn't know you needed
 - [**Projects**](#projects) — Introduction to each of the projects
   - [**Derive macro:** `derive(Builder)`](#derive-macro-derivebuilder)
   - [**Derive macro:** `derive(CustomDebug)`](#derive-macro-derivecustomdebug)
@@ -37,6 +38,51 @@ assume a working understanding of structs, enums, traits, trait impls, generic
 parameters, and trait bounds. You are welcome to dive into the workshop with any
 level of experience with Rust, but you may find that these basics are far easier
 to learn for the first time outside of the context of macros.
+
+<br>
+
+## 🚀 Before You Dive In...
+
+**Hold up!** Before you wrestle with `TokenStream`s and wonder why your macro is
+screaming at you in compiler-ese, there's a secret weapon waiting in the wings.
+
+We've prepared **[The Hitchhiker's Guide to Procedural Macros](./docs/proc-macro-tutorial/README.md)**
+— a fun, textbook-style tutorial that explains the *why* behind the *what*. It
+covers 7 essential crates that make proc-macro development actually enjoyable:
+
+| Crate | What It Does | Mind = Blown? |
+|-------|--------------|---------------|
+| `proc-macro` | The compiler's gateway | 🤯 |
+| `proc-macro2` | Same thing, but testable | 🧪 |
+| `syn` | Turns token soup into structured data | 🍜→📊 |
+| `quote` | Write Rust that writes Rust | 🪆 |
+| `darling` | Parse attributes without crying | 😢→😊 |
+| `heck` | `snake_case` ↔ `PascalCase` in one line | 🐍🔄🐫 |
+| `proc-macro-error2` | `abort!` instead of 5 lines of boilerplate | ✨ |
+
+### Why Read the Tutorial First?
+
+Think of it this way:
+
+- **Without the tutorial:** "Why is `DeriveInput` different from `TokenStream`?
+  What's a `Span`? Why do I need `quote!`? HELP!"
+  
+- **With the tutorial:** "Ah, `syn` parses tokens into structured types, `quote`
+  generates new tokens, and `darling` handles attributes. *I got this.*"
+
+The tutorial includes:
+- 🎨 Beautiful Mermaid diagrams showing how crates connect
+- 💻 Runnable code examples you can `cargo expand`
+- 🐛 `eprintln!` debugging tricks to see what macros actually see
+- 🧠 "Aha!" moments that make everything click
+
+**Time investment:** ~2 hours of reading, saves ~20 hours of confusion.
+
+<p align="center">
+<b>📖 <a href="./docs/proc-macro-tutorial/README.md">Start the Tutorial →</a></b>
+</p>
+
+*Already a proc-macro wizard? Skip ahead to the [projects](#projects) below!*
 
 <br>
 
