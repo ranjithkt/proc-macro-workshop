@@ -133,30 +133,49 @@ match &input.data {
 Here's how the types relate:
 
 ```mermaid
-classDiagram
-    DeriveInput --> Data : data
-    DeriveInput --> Generics : generics
-    DeriveInput --> Visibility : vis
-    DeriveInput --> Ident : ident
-    DeriveInput --> "Vec~Attribute~" : attrs
+graph TD
+    subgraph DeriveInput
+        DI[DeriveInput]
+    end
     
-    Data <|-- DataStruct
-    Data <|-- DataEnum
-    Data <|-- DataUnion
+    DI -->|data| Data
+    DI -->|generics| Generics
+    DI -->|vis| Visibility
+    DI -->|ident| Ident
+    DI -->|attrs| Attrs["Vec&lt;Attribute&gt;"]
     
-    DataStruct --> Fields : fields
-    DataEnum --> "Vec~Variant~" : variants
+    subgraph "Data Enum"
+        Data --> DataStruct
+        Data --> DataEnum
+        Data --> DataUnion
+    end
     
-    Fields <|-- Named
-    Fields <|-- Unnamed
-    Fields <|-- Unit
+    DataStruct -->|fields| Fields
+    DataEnum -->|variants| Variants["Vec&lt;Variant&gt;"]
     
-    Named --> "Vec~Field~" : named
-    Unnamed --> "Vec~Field~" : unnamed
+    subgraph "Fields Enum"
+        Fields --> Named["Named (FieldsNamed)"]
+        Fields --> Unnamed["Unnamed (FieldsUnnamed)"]
+        Fields --> Unit
+    end
     
-    Field --> Ident : ident
-    Field --> Type : ty
-    Field --> "Vec~Attribute~" : attrs
+    Named -->|named| NF["Vec&lt;Field&gt;"]
+    Unnamed -->|unnamed| UF["Vec&lt;Field&gt;"]
+    
+    subgraph Field
+        F[Field]
+        F -->|ident| FIdent[Ident]
+        F -->|ty| FType[Type]
+        F -->|attrs| FAttrs["Vec&lt;Attribute&gt;"]
+    end
+    
+    NF --> F
+    UF --> F
+    
+    style DI fill:#e1f5fe
+    style Data fill:#fff3e0
+    style Fields fill:#f3e5f5
+    style F fill:#e8f5e9
 ```
 
 The key path for most derive macros is:
