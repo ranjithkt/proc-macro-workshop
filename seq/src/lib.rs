@@ -1,5 +1,6 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Delimiter, Group, Ident, Literal, TokenStream as TokenStream2, TokenTree};
+use proc_macro_error2::proc_macro_error;
 use syn::{parse::Parse, parse_macro_input, LitInt, Token};
 
 struct SeqInput {
@@ -43,6 +44,7 @@ impl Parse for SeqInput {
 }
 
 #[proc_macro]
+#[proc_macro_error]
 pub fn seq(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as SeqInput);
 
