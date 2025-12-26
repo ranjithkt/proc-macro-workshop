@@ -1,5 +1,27 @@
 # Rust Latam: procedural macros workshop
 
+> ## 🎯 Wait, Is This the Answer Key?
+>
+> **Yes.** You've found the *solved* version of the proc-macro workshop.
+>
+> This repository is a fork of [dtolnay's original proc-macro-workshop](https://github.com/dtolnay/proc-macro-workshop),
+> which contains empty project skeletons for you to implement yourself. **This
+> fork has all 5 projects fully implemented and passing all tests.**
+>
+> ### Choose Your Adventure:
+>
+> | You Want To... | Do This |
+> |----------------|---------|
+> | 🏋️ **Practice yourself** | Fork the [original workshop](https://github.com/dtolnay/proc-macro-workshop) and struggle gloriously |
+> | 👀 **Peek when stuck** | Use this repo as a reference when you hit a wall |
+> | 🚀 **Speed-run the concepts** | Read our [tutorial](./docs/proc-macro-tutorial/README.md) + browse solutions here |
+> | 🤷 **Just see how it's done** | You're in the right place—dive into the code! |
+>
+> *No judgment here. Everyone learns differently. Some of us like to figure it
+> out; others prefer to see a working example first. Both are valid!*
+
+<br>
+
 *This repo contains a selection of projects designed to learn to write Rust
 procedural macros &mdash; Rust code that generates Rust code.*
 
@@ -14,6 +36,7 @@ by other authors.*
 
 - [**Suggested prerequisites**](#suggested-prerequisites)
 - [**🚀 Before You Dive In...**](#-before-you-dive-in) — The secret weapon you didn't know you needed
+- [**🛠️ How to Use This Repository**](#️-how-to-use-this-repository) — Practice, learn, or speed-run
 - [**Projects**](#projects) — Introduction to each of the projects
   - [**Derive macro:** `derive(Builder)`](#derive-macro-derivebuilder)
   - [**Derive macro:** `derive(CustomDebug)`](#derive-macro-derivecustomdebug)
@@ -83,6 +106,44 @@ The tutorial includes:
 </p>
 
 *Already a proc-macro wizard? Skip ahead to the [projects](#projects) below!*
+
+<br>
+
+## 🛠️ How to Use This Repository
+
+Since this is the **solved version**, here's how to get the most out of it:
+
+### Option 1: The "I Want to Practice" Path 💪
+
+1. **Fork the [original empty workshop](https://github.com/dtolnay/proc-macro-workshop)**
+2. Read our **[Tutorial](./docs/proc-macro-tutorial/README.md)** to understand the concepts
+3. Attempt each project yourself
+4. When stuck, peek at this repo's solution for hints
+5. Resist the urge to copy-paste (your future self will thank you)
+
+### Option 2: The "I Learn by Reading" Path 📚
+
+1. **Read the [Tutorial](./docs/proc-macro-tutorial/README.md) first** (~2 hours)
+2. Browse the solved implementations in this repo
+3. Run the tests: `cd builder && cargo test`
+4. Use `cargo expand` to see what the macros generate
+5. Modify the code, break things, understand why they break
+
+### Option 3: The "I Need This Yesterday" Path ⚡
+
+1. Jump straight to the project you need (e.g., `builder/src/lib.rs`)
+2. Copy the patterns you need
+3. No shame—we've all been there at 2 AM before a deadline
+
+### Where's the Code?
+
+| Project | Source | Tests |
+|---------|--------|-------|
+| Builder | [`builder/src/lib.rs`](./builder/src/lib.rs) | `cd builder && cargo test` |
+| CustomDebug | [`debug/src/lib.rs`](./debug/src/lib.rs) | `cd debug && cargo test` |
+| Seq | [`seq/src/lib.rs`](./seq/src/lib.rs) | `cd seq && cargo test` |
+| Sorted | [`sorted/src/lib.rs`](./sorted/src/lib.rs) | `cd sorted && cargo test` |
+| Bitfield | [`bitfield/impl/src/lib.rs`](./bitfield/impl/src/lib.rs) | `cd bitfield && cargo test` |
 
 <br>
 
