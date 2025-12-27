@@ -9,28 +9,68 @@
 
 ---
 
-## The Problem: Attribute Parsing Spaghetti
+## The Goal: A `#[derive(Builder)]` Macro
 
-Remember Chapter 2, where we parsed `#[debug = "..."]`? Here's what it looked like:
+Before we talk about attribute parsing, let's be clear about *what we're building*.
+
+Consider this struct:
 
 ```rust
-fn get_debug_format(attrs: &[Attribute]) -> Option<String> {
-    for attr in attrs {
-        if !attr.path().is_ident("debug") {
-            continue;
-        }
-        
-        if let Meta::NameValue(meta) = &attr.meta {
-            if let syn::Expr::Lit(expr_lit) = &meta.value {
-                if let syn::Lit::Str(lit_str) = &expr_lit.lit {
-                    return Some(lit_str.value());
-                }
-            }
-        }
-    }
-    None
+pub struct Command {
+    executable: String,
+    args: Vec<String>,
+    current_dir: Option<String>,
 }
 ```
+
+Creating a `Command` directly is a bit clunky — you have to provide all fields at once:
+
+```rust
+let cmd = Command {
+    executable: "cargo".to_owned(),
+    args: vec!["build".to_owned(), "--release".to_owned()],
+    current_dir: None,
+};
+```
+
+The **Builder pattern** solves this: instead of constructing the struct directly, you call chainable setter methods and finish with `.build()`. Much nicer:
+
+```rust
+let cmd = Command::builder()
+    .executable("cargo".to_owned())
+    .arg("build".to_owned())        // add one arg at a time!
+    .arg("--release".to_owned())
+    .build()
+    .unwrap();
+```
+
+Writing builder boilerplate by hand is tedious. So we want a **derive macro** that generates it for us:
+
+```rust
+#[derive(Builder)]   // ← our macro!
+pub struct Command {
+    executable: String,
+    #[builder(each = "arg")]   // ← helper attribute: "generate a method named `arg`"
+    args: Vec<String>,
+    current_dir: Option<String>,
+}
+```
+
+The `#[builder(each = "arg")]` is a **helper attribute**. It tells our macro: "for this `Vec` field, generate a method named `arg` that pushes one element at a time."
+
+**Our macro's job:**
+
+1. Parse `Command` and its fields.
+2. Read any `#[builder(...)]` helper attributes.
+3. Generate a `CommandBuilder` struct with setters and a `build()` method.
+
+Steps 1 and 3 are straightforward with `syn` and `quote`. But step 2 — reading helper attributes — is where things get *messy*.
+
+---
+
+## The Problem: Attribute Parsing Spaghetti
+
+So… how does our derive macro *read* `#[builder(each = "arg")]` and turn it into a method named `arg`?
 
 ### Where do these `Attribute`s come from?
 
@@ -42,9 +82,8 @@ In a derive macro, you start with a `TokenStream`, parse it into a `syn::DeriveI
 So for code like:
 
 ```rust
-#[derive(MyMacro)]
-#[my_macro(name = "Widget")]     // container attribute (goes on DeriveInput)
-struct Widget {
+#[derive(Builder)]
+struct Command {
     #[builder(each = "arg")]     // field attribute (goes on syn::Field)
     args: Vec<String>,
 }
@@ -62,13 +101,13 @@ DeriveInput
 
 And each `Attribute` contains a parsed “meta item” — the thing inside the brackets:
 
-- `#[debug]` → `Meta::Path`
-- `#[debug = "..."]` → `Meta::NameValue`
-- `#[builder(each = "arg", default)]` → `Meta::List`
+- `#[builder]` → `Meta::Path`
+- `#[builder = "..."]` → `Meta::NameValue` (rare for helpers, but possible)
+- `#[builder(each = "arg")]` → `Meta::List`
 
 That’s why manual parsing turns into nested `match` soup so quickly: you’re walking this meta structure by hand.
 
-That's 15 lines for *one simple attribute*. Now imagine parsing:
+Even for *one simple key* like `each`, this gets verbose fast. Now imagine parsing:
 
 ```rust
 #[builder(each = "arg", default = true, rename = "something")]
@@ -78,156 +117,128 @@ You'd need 50+ lines of deeply nested pattern matching. And error messages? You'
 
 **💡 Aha!** What if we could just define a struct and have the parsing generated automatically? That's `darling`.
 
+But first, let's see exactly how painful the manual approach is — so you'll *really* appreciate what darling does.
+
 ---
 
-## Before/After: The Transformation
+## The old way: manual parsing (a.k.a. "attribute lasagna")
 
-Here's the power of `darling` in one picture:
+Let's write the attribute-parsing code the hard way, using just `syn`.
 
-```mermaid
-graph LR
-    subgraph "Manual Parsing 😰"
-        A[Match attr.path] --> B[Match Meta::List]
-        B --> C[Parse nested tokens]
-        C --> D[Match Meta::NameValue]
-        D --> E[Extract Lit::Str]
-        E --> F[Handle errors manually]
-    end
-    
-    subgraph "With Darling 😌"
-        G["#[derive(FromField)]"] --> H[Automatic parsing!]
-    end
-```
-
-### The Big Picture: What darling actually does
-
-`darling` is best thought of as **a translator from `syn`’s AST into your own Rust structs**.
-
-Instead of writing:
-
-- “loop attributes”
-- “check attribute name”
-- “parse meta list”
-- “handle defaults”
-- “produce nice errors”
-
-…you define a struct that *describes what you want*, and darling generates the boring parts.
-
-### Before (Manual)
+At the top level, every derive macro begins the same way:
 
 ```rust
-// 30+ lines of this nightmare
-fn parse_builder_attr(field: &Field) -> Result<BuilderConfig, syn::Error> {
+#[proc_macro_derive(Builder, attributes(builder))]
+pub fn derive_builder(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let parsed = match old_way_parse(&input) {
+        Ok(p) => p,
+        Err(e) => return e.to_compile_error().into(),
+    };
+
+    // Now use `parsed` to drive quote! code generation…
+    todo!()
+}
+```
+
+One important detail: the `attributes(builder)` part is not decoration.
+
+It tells the compiler that `#[builder(...)]` is an *inert helper attribute* associated with this derive macro. Without it, Rust rejects the caller’s code as “unknown attribute” before your macro even gets a chance to run.
+
+So what’s inside `old_way_parse`? A whole lot of “find `#[builder(...)]`, parse its nested meta, validate, repeat”:
+
+```rust
+struct OldFieldConfig {
+    each: Option<String>,
+}
+
+fn old_way_parse(input: &DeriveInput) -> syn::Result<Vec<OldFieldConfig>> {
+    let fields = match &input.data {
+        syn::Data::Struct(s) => match &s.fields {
+            syn::Fields::Named(named) => &named.named,
+            _ => return Err(syn::Error::new_spanned(&s.fields, "expected named fields")),
+        },
+        _ => return Err(syn::Error::new_spanned(input, "Builder only supports structs")),
+    };
+
+    fields.iter().map(old_way_parse_field).collect()
+}
+
+fn old_way_parse_field(field: &syn::Field) -> syn::Result<OldFieldConfig> {
+    use syn::{punctuated::Punctuated, Expr, ExprLit, Lit, Meta, Token};
+
     for attr in &field.attrs {
         if !attr.path().is_ident("builder") {
             continue;
         }
-        if let Meta::List(meta_list) = &attr.meta {
-            let nested = meta_list.parse_args_with(
-                Punctuated::<Meta, Token![,]>::parse_terminated
-            )?;
-            for meta in nested {
-                if let Meta::NameValue(nv) = meta {
-                    if nv.path.is_ident("each") {
-                        if let Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) = &nv.value {
-                            return Ok(BuilderConfig { each: Some(s.value()) });
-                        }
+
+        let Meta::List(list) = &attr.meta else {
+            return Err(syn::Error::new_spanned(attr, "expected #[builder(...)]"));
+        };
+
+        // Parses `each = "arg", default = true, ...` into a list of Meta items
+        let nested = list.parse_args_with(Punctuated::<Meta, Token![,]>::parse_terminated)?;
+
+        for meta in nested {
+            if let Meta::NameValue(nv) = meta {
+                if nv.path.is_ident("each") {
+                    if let Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) = &nv.value {
+                        return Ok(OldFieldConfig { each: Some(s.value()) });
                     }
+                    return Err(syn::Error::new_spanned(nv.value, "each must be a string literal"));
                 }
             }
         }
     }
-    Ok(BuilderConfig { each: None })
+
+    Ok(OldFieldConfig { each: None })
 }
 ```
 
-### After (Darling)
+That is… a lot of code to extract one tiny `Option<String>`. And we haven't even started generating the builder yet.
 
-```rust
-// 10 lines, done
-#[derive(FromField)]
-#[darling(attributes(builder))]
-struct BuilderField {
-    ident: Option<Ident>,
-    ty: Type,
-    #[darling(default)]
-    each: Option<String>,
-}
-```
+Let's recap what this manual approach requires:
 
-What this means in human terms:
+- Match `Data::Struct` → `Fields::Named` to get fields
+- Loop through each field's `attrs`
+- Check if the attribute path is `builder`
+- Parse `Meta::List` contents into `Punctuated<Meta, Token![,]>`
+- Match each nested `Meta::NameValue`
+- Extract the string literal from `Expr::Lit`
+- Craft error messages manually for every failure case
 
-- `#[derive(FromField)]` tells darling: “generate a `BuilderField::from_field(&syn::Field)` parser.”
-- `#[darling(attributes(builder))]` tells it: “look for attributes named `builder` (i.e. `#[builder(...)]`) on the field.”
-- `#[darling(default)]` means: “if the attribute key is absent, don’t error — use a default (`None` for `Option<T>`, `false` for `bool`, etc.).”
-
-So instead of you spelunking through `Meta::List` manually, you get a typed value like `BuilderField { each: Some("arg".into()), .. }`.
+That's 6+ layers of pattern matching for *one attribute key*. Now imagine adding `default`, `rename`, `skip`… 😱
 
 ---
 
-## FromDeriveInput: Struct-Level Parsing
+## The new way: darling (a.k.a. "serde, but for attributes")
 
-`FromDeriveInput` parses the entire item your macro is attached to:
+Time for the good stuff.
+
+`darling` is best thought of as **a translator from `syn`'s AST into your own Rust structs**. Instead of manually spelunking through `Meta::List`, you *describe* what you want to extract — and darling generates the parsing code for you.
+
+### Struct-level parsing with `FromDeriveInput`
 
 ```rust
 use darling::{FromDeriveInput, ast::Data};
-use syn::{DeriveInput, Ident, Type};
+use syn::{DeriveInput, Ident};
 
 #[derive(FromDeriveInput)]
-#[darling(attributes(my_macro), supports(struct_named))]
-struct MyInput {
-    // Automatically extracted from DeriveInput
+#[darling(attributes(builder), supports(struct_named))]
+struct BuilderInput {
     ident: Ident,
-    
-    // Parse fields using our custom type
-    data: Data<(), MyField>,
-    
-    // Struct-level attributes: #[my_macro(name = "...")]
-    #[darling(default)]
-    name: Option<String>,
+    data: Data<(), BuilderField>,
 }
 ```
 
-### How this fits into a derive macro
+This says:
 
-Your proc-macro entry point still looks the same:
+- “Only accept named structs.”
+- “Look for `#[builder(...)]` helper attributes.”
+- “While you’re at it, parse every field using `BuilderField` (next section).”
 
-1. Parse `TokenStream` → `syn::DeriveInput`
-2. Parse `DeriveInput` → your typed config struct (that’s the “darling step”)
-3. Generate output tokens with `quote!`
-
-The “darling step” is usually just one line: `MyInput::from_derive_input(&input)`.
-
-### Usage
-
-```rust
-#[proc_macro_derive(MyMacro, attributes(my_macro))]
-pub fn derive(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    
-    // Parse with darling!
-    let parsed = match MyInput::from_derive_input(&input) {
-        Ok(p) => p,
-        Err(e) => return e.write_errors().into(),
-    };
-    
-    // Now use parsed.ident, parsed.data, parsed.name
-    // ...
-}
-```
-
-Two important details that are easy to miss:
-
-- `attributes(my_macro)` (on `#[proc_macro_derive(...)]`) tells Rust: “this derive macro is allowed to see helper attributes named `my_macro` without warning the user.”
-- `#[darling(attributes(my_macro))]` (on your config struct) tells darling: “when parsing, pay attention to `#[my_macro(...)]`.”
-
-**💡 Aha!** Notice `e.write_errors()`—darling generates helpful error messages automatically, including "Did you mean?" suggestions for typos!
-
----
-
-## FromField: Field-Level Parsing
-
-For parsing attributes on individual fields:
+### Field-level parsing with `FromField`
 
 ```rust
 use darling::FromField;
@@ -236,52 +247,41 @@ use syn::{Ident, Type};
 #[derive(FromField)]
 #[darling(attributes(builder))]
 struct BuilderField {
-    // Automatically extracted
     ident: Option<Ident>,
     ty: Type,
-    
-    // Field-level attributes: #[builder(each = "...")]
+
     #[darling(default)]
     each: Option<String>,
-    
-    #[darling(default)]
-    skip: bool,
 }
 ```
 
-This is the field-level version of the same idea: darling generates a parser that takes a `syn::Field` (which contains `ident`, `ty`, and `attrs`) and produces a nice Rust struct you can use during code generation.
+This says:
 
-### Accessing Fields
+- “Give me the field’s name and type.”
+- “If there’s a `#[builder(each = "...")]`, parse it into `each: Option<String>`.”
+- “If there isn’t, don’t error — just use `None`.”
 
-When using `Data<(), MyField>`, iterate like this:
+### Putting it together: the new `derive_builder`
+
+Remember that 50-line `old_way_parse` function? We can delete it entirely.
+
+Now the derive macro entry point becomes… pleasantly boring:
 
 ```rust
-fn process_fields(data: &Data<(), MyField>) -> Vec<TokenStream> {
-    data.as_ref()
-        .take_struct()
-        .expect("only structs supported")
-        .fields
-        .iter()
-        .map(|field| {
-            let name = field.ident.as_ref().unwrap();
-            let ty = &field.ty;
-            
-            if let Some(each) = &field.each {
-                // Handle "each" attribute
-                quote! { /* ... */ }
-            } else {
-                quote! { /* ... */ }
-            }
-        })
-        .collect()
+#[proc_macro_derive(Builder, attributes(builder))]
+pub fn derive_builder(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    match BuilderInput::from_derive_input(&input) {
+        Ok(parsed) => derive_builder_impl(parsed).into(),
+        Err(e) => e.write_errors().into(),
+    }
 }
 ```
 
-If you’re wondering “why not use `syn::Data` directly?” — you can! `darling::ast::Data` is just a convenience wrapper that:
+**💡 Aha!** Notice `e.write_errors()`—darling generates helpful error messages automatically, including “Did you mean?” suggestions for typos!
 
-- Normalizes structs/enums for you
-- Applies your `FromField` / `FromVariant` parsers automatically
-- Lets you write “give me the struct fields” logic without re-matching the `syn::Data` shape every time
+And *now* your code generation step (`derive_builder_impl`) can focus on generating the builder, not decoding attribute syntax.
 
 ---
 
@@ -350,7 +350,7 @@ No manual error handling required!
 Darling can collect multiple errors instead of stopping at the first:
 
 ```rust
-match MyInput::from_derive_input(&input) {
+match BuilderInput::from_derive_input(&input) {
     Ok(parsed) => { /* use parsed */ }
     Err(e) => return e.write_errors().into(),
 }
@@ -413,60 +413,13 @@ fn has_skip_attr(attrs: &[Attribute]) -> bool {
 
 ## Real Example: Builder with Darling
 
-Here's how the workshop's Builder macro uses darling:
+The workshop’s real Builder macro in `builder/src/lib.rs` follows the exact pattern you just saw:
 
-```rust
-use darling::{FromDeriveInput, FromField, ast::Data};
-use syn::{DeriveInput, Ident, Type};
+- Parse `TokenStream` → `syn::DeriveInput`
+- Parse `DeriveInput` → `BuilderInput` (darling)
+- Generate code in a separate `derive_builder_impl` function (quote)
 
-#[derive(FromDeriveInput)]
-#[darling(attributes(builder), supports(struct_named))]
-pub struct BuilderInput {
-    ident: Ident,
-    data: Data<(), BuilderField>,
-}
-
-#[derive(FromField)]
-#[darling(attributes(builder))]
-pub struct BuilderField {
-    ident: Option<Ident>,
-    ty: Type,
-    
-    #[darling(default)]
-    each: Option<String>,
-}
-
-impl BuilderInput {
-    pub fn fields(&self) -> &[BuilderField] {
-        &self.data.as_ref().take_struct().unwrap().fields
-    }
-}
-```
-
-And here’s the missing “glue” — the part where these parsing structs actually get used:
-
-```rust
-use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput};
-
-#[proc_macro_derive(Builder, attributes(builder))]
-pub fn derive_builder(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    let parsed = match BuilderInput::from_derive_input(&input) {
-        Ok(p) => p,
-        Err(e) => return e.write_errors().into(),
-    };
-
-    // At this point, `parsed.fields()` is a typed list of BuilderField values
-    // (with `each`, `ty`, etc.) ready to drive `quote!` code generation.
-    //
-    // Next chapters/examples fill in the actual builder code generation.
-    todo!()
-}
-```
-
-Compare this to the 100+ lines of manual parsing it replaces!
+If you want to see the “full, working” version (including `each`, `Option<T>` handling, and the generated setters), that file is the best reference.
 
 ---
 
